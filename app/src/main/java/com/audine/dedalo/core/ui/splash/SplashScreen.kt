@@ -12,27 +12,41 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.audine.dedalo.auth.domain.AuthUiState
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.snapshotFlow
 
 @Composable
 fun SplashScreen(
+    uiState: AuthUiState,
     onNavigateToLogin: () -> Unit,
-    onNavigateToMain: () -> Unit
+    onNavigateToMain: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     LaunchedEffect(Unit) {
         delay(2000)
-        onNavigateToMain()
+        val finalState = snapshotFlow { uiState }
+            .filter { it !is AuthUiState.Loading }
+            .first()
+        when (finalState) {
+            is AuthUiState.Authenticated -> onNavigateToMain()
+            else -> onNavigateToLogin()
+        }
     }
 
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 text = "Dedalo",
                 style = MaterialTheme.typography.headlineLarge,
+                fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
             )
             Spacer(Modifier.height(16.dp))

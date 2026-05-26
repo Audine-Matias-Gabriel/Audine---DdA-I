@@ -2,9 +2,11 @@ package com.audine.dedalo.auth.data
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.tasks.await
 
 class AuthRepository(
     private val auth: FirebaseAuth,
@@ -33,6 +35,12 @@ class AuthRepository(
     val currentUser: Flow<UserEntity?> = userDao.observeCurrentUser()
 
     fun observeAuthState(): Flow<AuthState> = authStateFlow
+
+    suspend fun signInWithGoogle(idToken: String) {
+        val credential = GoogleAuthProvider.getCredential(idToken, null)
+        val authResult = auth.signInWithCredential(credential).await()
+        authResult.user?.let { persistUser(it) }
+    }
 
     suspend fun persistUser(firebaseUser: FirebaseUser) {
         userDao.clearCurrentUser()
