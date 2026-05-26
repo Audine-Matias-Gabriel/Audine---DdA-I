@@ -22,6 +22,9 @@ google-services.json
 PLAN.md
 AGENTS.md
 
+# Room schema export
+/schemas
+
 # Misc
 *.log
 *.tmp
