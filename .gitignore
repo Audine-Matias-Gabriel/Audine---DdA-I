@@ -18,6 +18,10 @@ google-services.json
 *.keystore
 *.pem
 
+# Planning docs
+PLAN.md
+AGENTS.md
+
 # Misc
 *.log
 *.tmp
