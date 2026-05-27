@@ -7,6 +7,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import com.audine.dedalo.core.ui.theme.DedaloTheme
 
 @Composable
 fun ProfileScreen() {
@@ -19,4 +21,10 @@ fun ProfileScreen() {
             style = MaterialTheme.typography.headlineMedium
         )
     }
+}
+
+@Preview(showBackground = true, showSystemUi = false)
+@Composable
+private fun ProfileScreenPreview() {
+    DedaloTheme { ProfileScreen() }
 }

@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -28,6 +29,7 @@ import com.audine.dedalo.chat.ui.ChatScreen
 import com.audine.dedalo.core.di.ViewModelFactory
 import com.audine.dedalo.core.navigation.Routes
 import com.audine.dedalo.profile.ui.ProfileScreen
+import com.audine.dedalo.core.ui.theme.DedaloTheme
 import com.audine.dedalo.projects.ui.list.ProjectsListScreen
 import com.audine.dedalo.projects.ui.list.ProjectsViewModel
 
@@ -96,4 +98,10 @@ fun MainScreen(
             composable(Routes.PROFILE) { ProfileScreen() }
         }
     }
+}
+
+@Preview(showBackground = true, showSystemUi = false, device = "id:pixel_6")
+@Composable
+private fun MainScreenPreview() {
+    DedaloTheme { MainScreen(onNavigateToProjectDetail = {}, onNavigateToImageViewer = {}, onCreateProject = {}) }
 }

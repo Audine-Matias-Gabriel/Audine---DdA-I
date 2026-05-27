@@ -28,7 +28,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.audine.dedalo.core.ui.theme.DedaloTheme
 import com.audine.dedalo.projects.data.Project
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -144,4 +146,33 @@ private fun ProjectCard(
             }
         }
     }
+}
+
+private val previewProject1 = Project(
+    id = "1", nombre = "Edificio Central",
+    direccion = "Av. Siempre Viva 742", latitud = -34.6037, longitud = -58.3816,
+    fos = "0.6", fot = "2.5"
+)
+private val previewProject2 = Project(
+    id = "2", nombre = "Torre Empresarial",
+    direccion = "Calle Principal 123", latitud = -34.6020, longitud = -58.3800,
+    fos = "0.8", fot = "3.0"
+)
+
+@Preview(showBackground = true, showSystemUi = false)
+@Composable
+private fun ProjectsListLoadingPreview() {
+    DedaloTheme { ProjectsListScreen(uiState = ProjectsUiState.Loading, onCreateProject = {}, onNavigateToProjectDetail = {}) }
+}
+
+@Preview(showBackground = true, showSystemUi = false)
+@Composable
+private fun ProjectsListEmptyPreview() {
+    DedaloTheme { ProjectsListScreen(uiState = ProjectsUiState.Success(emptyList()), onCreateProject = {}, onNavigateToProjectDetail = {}) }
+}
+
+@Preview(showBackground = true, showSystemUi = false)
+@Composable
+private fun ProjectsListSuccessPreview() {
+    DedaloTheme { ProjectsListScreen(uiState = ProjectsUiState.Success(listOf(previewProject1, previewProject2)), onCreateProject = {}, onNavigateToProjectDetail = {}) }
 }

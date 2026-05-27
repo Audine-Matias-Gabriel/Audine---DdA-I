@@ -41,6 +41,8 @@ import coil.compose.AsyncImage
 import com.audine.dedalo.projects.data.ImageData
 import com.audine.dedalo.projects.data.ImageType
 import com.audine.dedalo.projects.data.Project
+import androidx.compose.ui.tooling.preview.Preview
+import com.audine.dedalo.core.ui.theme.DedaloTheme
 import com.audine.dedalo.projects.data.Stage
 import com.audine.dedalo.projects.data.StageStatus
 import java.text.SimpleDateFormat
@@ -280,4 +282,28 @@ private fun GallerySection(
             }
         }
     }
+}
+
+private val previewStage1 = Stage(id = "s1", nombre = "Excavación", posicion = 1, estado = StageStatus.FINALIZADA,
+    fechaInicio = 1700000000000L, fechaFin = 1705000000000L)
+private val previewStage2 = Stage(id = "s2", nombre = "Estructura", posicion = 2, estado = StageStatus.EN_PROGRESO,
+    fechaInicio = 1710000000000L)
+private val previewStage3 = Stage(id = "s3", nombre = "Instalaciones", posicion = 3, estado = StageStatus.ESPERA)
+private val previewProject = Project(
+    id = "1", nombre = "Edificio Central",
+    direccion = "Av. Siempre Viva 742", latitud = -34.6037, longitud = -58.3816,
+    fos = "0.6", fot = "2.5",
+    stages = listOf(previewStage1, previewStage2, previewStage3)
+)
+
+@Preview(showBackground = true, showSystemUi = false)
+@Composable
+private fun ProjectDetailLoadingPreview() {
+    DedaloTheme { ProjectDetailScreen(uiState = ProjectDetailUiState.Loading, onNavigateBack = {}, onNavigateToImageViewer = {}) }
+}
+
+@Preview(showBackground = true, showSystemUi = false)
+@Composable
+private fun ProjectDetailSuccessPreview() {
+    DedaloTheme { ProjectDetailScreen(uiState = ProjectDetailUiState.Success(previewProject), onNavigateBack = {}, onNavigateToImageViewer = {}) }
 }

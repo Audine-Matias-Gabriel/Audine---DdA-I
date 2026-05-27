@@ -31,6 +31,8 @@ import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import kotlinx.coroutines.CancellationException
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.tooling.preview.Preview
+import com.audine.dedalo.core.ui.theme.DedaloTheme
 import kotlinx.coroutines.launch
 
 @Composable
@@ -130,4 +132,22 @@ fun LoginScreen(
             }
         }
     }
+}
+
+@Preview(showBackground = true, showSystemUi = false)
+@Composable
+private fun LoginScreenUnauthenticatedPreview() {
+    DedaloTheme { LoginScreen(uiState = AuthUiState.Unauthenticated, onSignInWithGoogle = {}, onLoginSuccess = {}) }
+}
+
+@Preview(showBackground = true, showSystemUi = false)
+@Composable
+private fun LoginScreenLoadingPreview() {
+    DedaloTheme { LoginScreen(uiState = AuthUiState.Loading, onSignInWithGoogle = {}, onLoginSuccess = {}) }
+}
+
+@Preview(showBackground = true, showSystemUi = false)
+@Composable
+private fun LoginScreenErrorPreview() {
+    DedaloTheme { LoginScreen(uiState = AuthUiState.Error("Error de autenticación"), onSignInWithGoogle = {}, onLoginSuccess = {}) }
 }

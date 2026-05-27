@@ -45,15 +45,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.audine.dedalo.core.data.remote.LocationiqResponse
+import com.audine.dedalo.core.ui.theme.DedaloTheme
 import com.audine.dedalo.projects.data.ImageType
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -72,8 +75,6 @@ fun CreateProjectScreen(
     val saveError by viewModel.saveError.collectAsStateWithLifecycle()
     val saveSuccess by viewModel.saveSuccess.collectAsStateWithLifecycle()
 
-    var showSuggestions by remember { mutableStateOf(false) }
-
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetMultipleContents()
     ) { uris ->
@@ -85,6 +86,54 @@ fun CreateProjectScreen(
     }
 
     val isFormValid = nombre.isNotBlank() && direccion.isNotBlank()
+
+    CreateProjectContent(
+        nombre = nombre,
+        onNombreChange = viewModel::onNombreChange,
+        direccion = direccion,
+        onDireccionChange = viewModel::onDireccionChange,
+        fos = fos,
+        onFosChange = viewModel::onFosChange,
+        fot = fot,
+        onFotChange = viewModel::onFotChange,
+        selectedImages = selectedImages,
+        suggestions = suggestions,
+        onAddImage = { imagePickerLauncher.launch("image/*") },
+        onRemoveImage = viewModel::removeImageUri,
+        onSetImageType = viewModel::setImageType,
+        onSuggestionSelected = viewModel::onSuggestionSelected,
+        isSaving = isSaving,
+        saveError = saveError,
+        isFormValid = isFormValid,
+        onSave = viewModel::createProject,
+        onNavigateBack = onNavigateBack
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CreateProjectContent(
+    nombre: String,
+    onNombreChange: (String) -> Unit,
+    direccion: String,
+    onDireccionChange: (String) -> Unit,
+    fos: String,
+    onFosChange: (String) -> Unit,
+    fot: String,
+    onFotChange: (String) -> Unit,
+    selectedImages: List<SelectedImage>,
+    suggestions: List<LocationiqResponse>,
+    onAddImage: () -> Unit,
+    onRemoveImage: (Uri) -> Unit,
+    onSetImageType: (Uri, ImageType) -> Unit,
+    onSuggestionSelected: (LocationiqResponse) -> Unit,
+    isSaving: Boolean,
+    saveError: String?,
+    isFormValid: Boolean,
+    onSave: () -> Unit,
+    onNavigateBack: () -> Unit
+) {
+    var showSuggestions by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -106,7 +155,7 @@ fun CreateProjectScreen(
             item {
                 OutlinedTextField(
                     value = nombre,
-                    onValueChange = viewModel::onNombreChange,
+                    onValueChange = onNombreChange,
                     label = { Text("Nombre") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
@@ -118,7 +167,7 @@ fun CreateProjectScreen(
                 Box {
                     OutlinedTextField(
                         value = direccion,
-                        onValueChange = { viewModel.onDireccionChange(it); showSuggestions = true },
+                        onValueChange = { onDireccionChange(it); showSuggestions = true },
                         label = { Text("Dirección") },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
@@ -138,7 +187,7 @@ fun CreateProjectScreen(
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .clickable {
-                                                viewModel.onSuggestionSelected(suggestion)
+                                                onSuggestionSelected(suggestion)
                                                 showSuggestions = false
                                             }
                                             .padding(12.dp),
@@ -156,7 +205,7 @@ fun CreateProjectScreen(
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
                         value = fos,
-                        onValueChange = viewModel::onFosChange,
+                        onValueChange = onFosChange,
                         label = { Text("FOS") },
                         singleLine = true,
                         modifier = Modifier.weight(1f),
@@ -164,7 +213,7 @@ fun CreateProjectScreen(
                     )
                     OutlinedTextField(
                         value = fot,
-                        onValueChange = viewModel::onFotChange,
+                        onValueChange = onFotChange,
                         label = { Text("FOT") },
                         singleLine = true,
                         modifier = Modifier.weight(1f),
@@ -191,7 +240,7 @@ fun CreateProjectScreen(
                                     contentScale = ContentScale.Crop
                                 )
                                 IconButton(
-                                    onClick = { viewModel.removeImageUri(selected.uri) },
+                                    onClick = { onRemoveImage(selected.uri) },
                                     modifier = Modifier.align(Alignment.TopEnd).size(24.dp)
                                 ) {
                                     Icon(
@@ -206,7 +255,7 @@ fun CreateProjectScreen(
                             Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                                 FilterChip(
                                     selected = selected.type == ImageType.PHOTO,
-                                    onClick = { viewModel.setImageType(selected.uri, ImageType.PHOTO) },
+                                    onClick = { onSetImageType(selected.uri, ImageType.PHOTO) },
                                     label = { Text("Foto", style = MaterialTheme.typography.labelSmall) },
                                     colors = FilterChipDefaults.filterChipColors(
                                         selectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
@@ -215,7 +264,7 @@ fun CreateProjectScreen(
                                 )
                                 FilterChip(
                                     selected = selected.type == ImageType.PLAN,
-                                    onClick = { viewModel.setImageType(selected.uri, ImageType.PLAN) },
+                                    onClick = { onSetImageType(selected.uri, ImageType.PLAN) },
                                     label = { Text("Plano", style = MaterialTheme.typography.labelSmall) },
                                     colors = FilterChipDefaults.filterChipColors(
                                         selectedContainerColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.15f)
@@ -231,7 +280,7 @@ fun CreateProjectScreen(
                                 .size(100.dp)
                                 .clip(RoundedCornerShape(8.dp))
                                 .background(MaterialTheme.colorScheme.surfaceVariant)
-                                .clickable(enabled = !isSaving) { imagePickerLauncher.launch("image/*") },
+                                .clickable(enabled = !isSaving) { onAddImage() },
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
@@ -255,7 +304,7 @@ fun CreateProjectScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                 }
                 Button(
-                    onClick = viewModel::createProject,
+                    onClick = onSave,
                     modifier = Modifier.fillMaxWidth(),
                     enabled = isFormValid && !isSaving
                 ) {
@@ -271,5 +320,81 @@ fun CreateProjectScreen(
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = false)
+@Composable
+private fun CreateProjectContentEmptyPreview() {
+    DedaloTheme {
+        CreateProjectContent(
+            nombre = "", onNombreChange = {},
+            direccion = "", onDireccionChange = {},
+            fos = "", onFosChange = {},
+            fot = "", onFotChange = {},
+            selectedImages = emptyList(), suggestions = emptyList(),
+            onAddImage = {}, onRemoveImage = {}, onSetImageType = { _, _ -> },
+            onSuggestionSelected = {},
+            isSaving = false, saveError = null, isFormValid = false,
+            onSave = {}, onNavigateBack = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = false)
+@Composable
+private fun CreateProjectContentFilledPreview() {
+    DedaloTheme {
+        CreateProjectContent(
+            nombre = "Edificio Central", onNombreChange = {},
+            direccion = "Av. Siempre Viva 742", onDireccionChange = {},
+            fos = "0.6", onFosChange = {},
+            fot = "2.5", onFotChange = {},
+            selectedImages = emptyList(), suggestions = emptyList(),
+            onAddImage = {}, onRemoveImage = {}, onSetImageType = { _, _ -> },
+            onSuggestionSelected = {},
+            isSaving = false, saveError = null, isFormValid = true,
+            onSave = {}, onNavigateBack = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = false)
+@Composable
+private fun CreateProjectContentSavingPreview() {
+    DedaloTheme {
+        CreateProjectContent(
+            nombre = "Edificio Central", onNombreChange = {},
+            direccion = "Av. Siempre Viva 742", onDireccionChange = {},
+            fos = "0.6", onFosChange = {},
+            fot = "2.5", onFotChange = {},
+            selectedImages = emptyList(), suggestions = emptyList(),
+            onAddImage = {}, onRemoveImage = {}, onSetImageType = { _, _ -> },
+            onSuggestionSelected = {},
+            isSaving = true, saveError = null, isFormValid = true,
+            onSave = {}, onNavigateBack = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = false)
+@Composable
+private fun CreateProjectContentSuggestionsPreview() {
+    DedaloTheme {
+        CreateProjectContent(
+            nombre = "", onNombreChange = {},
+            direccion = "Av.", onDireccionChange = {},
+            fos = "", onFosChange = {},
+            fot = "", onFotChange = {},
+            selectedImages = emptyList(),
+            suggestions = listOf(
+                LocationiqResponse(lat = "-34.6037", lon = "-58.3816", displayName = "Av. Siempre Viva 742, CABA"),
+                LocationiqResponse(lat = "-34.6020", lon = "-58.3800", displayName = "Av. Siempre Viva 750, CABA")
+            ),
+            onAddImage = {}, onRemoveImage = {}, onSetImageType = { _, _ -> },
+            onSuggestionSelected = {},
+            isSaving = false, saveError = null, isFormValid = false,
+            onSave = {}, onNavigateBack = {}
+        )
     }
 }

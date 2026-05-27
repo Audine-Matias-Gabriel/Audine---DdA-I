@@ -17,7 +17,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
+import com.audine.dedalo.auth.data.UserEntity
 import com.audine.dedalo.auth.domain.AuthUiState
+import com.audine.dedalo.core.ui.theme.DedaloTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
@@ -54,9 +57,20 @@ fun SplashScreen(
                 style = MaterialTheme.typography.headlineLarge,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
-            )
-            Spacer(Modifier.height(16.dp))
-            CircularProgressIndicator()
+        )
         }
     }
+}
+
+@Preview(showBackground = true, showSystemUi = false)
+@Composable
+private fun SplashScreenLoadingPreview() {
+    DedaloTheme { SplashScreen(uiState = AuthUiState.Loading, onNavigateToLogin = {}, onNavigateToMain = {}) }
+}
+
+@Preview(showBackground = true, showSystemUi = false)
+@Composable
+private fun SplashScreenAuthenticatedPreview() {
+    val user = UserEntity(id = "1", displayName = "Demo User")
+    DedaloTheme { SplashScreen(uiState = AuthUiState.Authenticated(user), onNavigateToLogin = {}, onNavigateToMain = {}) }
 }

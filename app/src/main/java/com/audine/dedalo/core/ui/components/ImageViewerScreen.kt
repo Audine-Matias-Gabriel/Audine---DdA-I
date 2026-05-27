@@ -21,6 +21,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import coil.compose.AsyncImage
+import androidx.compose.ui.tooling.preview.Preview
+import com.audine.dedalo.core.ui.theme.DedaloTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -70,5 +72,15 @@ fun ImageViewerScreen(
                     }
             )
         }
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = false)
+@Composable
+fun ImageViewerScreenPreview() {
+    DedaloTheme {
+        ImageViewerScreen(
+            imageUrl = "https://picsum.photos/800/600",
+            onNavigateBack = {})
     }
 }
