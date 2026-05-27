@@ -30,6 +30,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -52,6 +54,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.audine.dedalo.projects.data.ImageType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -63,7 +66,7 @@ fun CreateProjectScreen(
     val direccion by viewModel.direccion.collectAsStateWithLifecycle()
     val fos by viewModel.fos.collectAsStateWithLifecycle()
     val fot by viewModel.fot.collectAsStateWithLifecycle()
-    val imageUris by viewModel.imageUris.collectAsStateWithLifecycle()
+    val selectedImages by viewModel.selectedImages.collectAsStateWithLifecycle()
     val suggestions by viewModel.suggestions.collectAsStateWithLifecycle()
     val isSaving by viewModel.isSaving.collectAsStateWithLifecycle()
     val saveError by viewModel.saveError.collectAsStateWithLifecycle()
@@ -173,28 +176,51 @@ fun CreateProjectScreen(
             item {
                 Text("Imágenes", style = MaterialTheme.typography.titleSmall)
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    items(imageUris, key = { it.toString() }) { uri ->
-                        Box(modifier = Modifier.size(100.dp)) {
-                            AsyncImage(
-                                model = ImageRequest.Builder(LocalContext.current)
-                                    .data(uri)
-                                    .crossfade(true)
-                                    .build(),
-                                contentDescription = "Imagen",
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .clip(RoundedCornerShape(8.dp)),
-                                contentScale = ContentScale.Crop
-                            )
-                            IconButton(
-                                onClick = { viewModel.removeImageUri(uri) },
-                                modifier = Modifier.align(Alignment.TopEnd).size(24.dp)
-                            ) {
-                                Icon(
-                                    Icons.Default.Close,
-                                    contentDescription = "Eliminar",
-                                    tint = MaterialTheme.colorScheme.error,
-                                    modifier = Modifier.size(18.dp)
+                    items(selectedImages, key = { it.uri.toString() }) { selected ->
+                        Column(modifier = Modifier.width(100.dp)) {
+                            Box(modifier = Modifier.size(100.dp)) {
+                                AsyncImage(
+                                    model = ImageRequest.Builder(LocalContext.current)
+                                        .data(selected.uri)
+                                        .crossfade(true)
+                                        .build(),
+                                    contentDescription = "Imagen",
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .clip(RoundedCornerShape(8.dp)),
+                                    contentScale = ContentScale.Crop
+                                )
+                                IconButton(
+                                    onClick = { viewModel.removeImageUri(selected.uri) },
+                                    modifier = Modifier.align(Alignment.TopEnd).size(24.dp)
+                                ) {
+                                    Icon(
+                                        Icons.Default.Close,
+                                        contentDescription = "Eliminar",
+                                        tint = MaterialTheme.colorScheme.error,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                }
+                            }
+                            Spacer(Modifier.height(4.dp))
+                            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                FilterChip(
+                                    selected = selected.type == ImageType.PHOTO,
+                                    onClick = { viewModel.setImageType(selected.uri, ImageType.PHOTO) },
+                                    label = { Text("Foto", style = MaterialTheme.typography.labelSmall) },
+                                    colors = FilterChipDefaults.filterChipColors(
+                                        selectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+                                    ),
+                                    modifier = Modifier.weight(1f)
+                                )
+                                FilterChip(
+                                    selected = selected.type == ImageType.PLAN,
+                                    onClick = { viewModel.setImageType(selected.uri, ImageType.PLAN) },
+                                    label = { Text("Plano", style = MaterialTheme.typography.labelSmall) },
+                                    colors = FilterChipDefaults.filterChipColors(
+                                        selectedContainerColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.15f)
+                                    ),
+                                    modifier = Modifier.weight(1f)
                                 )
                             }
                         }

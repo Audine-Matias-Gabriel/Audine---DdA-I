@@ -1,6 +1,7 @@
 package com.audine.dedalo.core.data.local
 
 import androidx.room.TypeConverter
+import com.audine.dedalo.projects.data.ImageData
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
@@ -13,6 +14,15 @@ class Converters {
     @TypeConverter
     fun toStringList(value: String): List<String> {
         val type = object : TypeToken<List<String>>() {}.type
+        return gson.fromJson(value, type) ?: emptyList()
+    }
+
+    @TypeConverter
+    fun fromImageDataList(value: List<ImageData>): String = gson.toJson(value)
+
+    @TypeConverter
+    fun toImageDataList(value: String): List<ImageData> {
+        val type = object : TypeToken<List<ImageData>>() {}.type
         return gson.fromJson(value, type) ?: emptyList()
     }
 }

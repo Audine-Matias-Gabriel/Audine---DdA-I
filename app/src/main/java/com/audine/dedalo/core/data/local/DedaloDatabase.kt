@@ -12,7 +12,7 @@ import com.audine.dedalo.projects.data.StageEntity
 
 @Database(
     entities = [ProjectEntity::class, StageEntity::class, UserEntity::class],
-    version = 1,
+    version = 2,
     exportSchema = true
 )
 @TypeConverters(Converters::class)

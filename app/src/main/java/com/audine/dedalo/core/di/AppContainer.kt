@@ -26,7 +26,7 @@ class AppContainer(context: Context) {
         context.applicationContext,
         DedaloDatabase::class.java,
         "dedalo.db"
-    ).build()
+    ).fallbackToDestructiveMigration().build()
 
     val projectDao: ProjectDao = database.projectDao()
     val stageDao: StageDao = database.stageDao()

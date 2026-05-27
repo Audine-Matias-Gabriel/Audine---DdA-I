@@ -12,7 +12,7 @@ data class ProjectEntity(
     val longitud: Double = 0.0,
     val fos: String = "",
     val fot: String = "",
-    val imageUrls: List<String> = emptyList(),
+    val images: List<ImageData> = emptyList(),
     val createdAt: Long = System.currentTimeMillis(),
     val updatedAt: Long = System.currentTimeMillis()
 )

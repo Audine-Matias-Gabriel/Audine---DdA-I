@@ -64,7 +64,7 @@ class ProjectRepository(
     private fun ProjectEntity.toDomain(): Project = Project(
         id = id, nombre = nombre, direccion = direccion,
         latitud = latitud, longitud = longitud,
-        fos = fos, fot = fot, imageUrls = imageUrls,
+        fos = fos, fot = fot, images = images,
         createdAt = createdAt, updatedAt = updatedAt
     )
 
@@ -78,7 +78,7 @@ class ProjectRepository(
     private fun Project.toEntity(): ProjectEntity = ProjectEntity(
         id = id, nombre = nombre, direccion = direccion,
         latitud = latitud, longitud = longitud,
-        fos = fos, fot = fot, imageUrls = imageUrls,
+        fos = fos, fot = fot, images = images,
         createdAt = createdAt, updatedAt = updatedAt
     )
 

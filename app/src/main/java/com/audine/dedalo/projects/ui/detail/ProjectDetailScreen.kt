@@ -38,6 +38,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.audine.dedalo.projects.data.ImageData
+import com.audine.dedalo.projects.data.ImageType
 import com.audine.dedalo.projects.data.Project
 import com.audine.dedalo.projects.data.Stage
 import com.audine.dedalo.projects.data.StageStatus
@@ -118,10 +120,10 @@ fun ProjectDetailScreen(
                         }
                     }
 
-                    if (state.project.imageUrls.isNotEmpty()) {
+                    if (state.project.images.isNotEmpty()) {
                         item {
                             GallerySection(
-                                imageUrls = state.project.imageUrls,
+                                images = state.project.images,
                                 onImageClick = onNavigateToImageViewer
                             )
                         }
@@ -231,7 +233,7 @@ private fun StageBadge(status: StageStatus) {
 
 @Composable
 private fun GallerySection(
-    imageUrls: List<String>,
+    images: List<ImageData>,
     onImageClick: (String) -> Unit
 ) {
     Column {
@@ -244,16 +246,37 @@ private fun GallerySection(
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(imageUrls, key = { it }) { url ->
-                AsyncImage(
-                    model = url,
-                    contentDescription = "Imagen de obra",
-                    modifier = Modifier
-                        .size(width = 150.dp, height = 120.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .clickable { onImageClick(url) },
-                    contentScale = ContentScale.Crop
-                )
+            items(images, key = { it.url }) { image ->
+                Column {
+                    Box(modifier = Modifier.size(width = 150.dp, height = 120.dp)) {
+                        AsyncImage(
+                            model = image.url,
+                            contentDescription = "Imagen de obra",
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clip(RoundedCornerShape(8.dp))
+                                .clickable { onImageClick(image.url) },
+                            contentScale = ContentScale.Crop
+                        )
+                        Surface(
+                            shape = RoundedCornerShape(4.dp),
+                            color = if (image.type == ImageType.PLAN)
+                                MaterialTheme.colorScheme.tertiary.copy(alpha = 0.85f)
+                            else
+                                MaterialTheme.colorScheme.primary.copy(alpha = 0.85f),
+                            modifier = Modifier
+                                .align(Alignment.BottomStart)
+                                .padding(4.dp)
+                        ) {
+                            Text(
+                                text = if (image.type == ImageType.PLAN) "Plano" else "Foto",
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onPrimary
+                            )
+                        }
+                    }
+                }
             }
         }
     }
