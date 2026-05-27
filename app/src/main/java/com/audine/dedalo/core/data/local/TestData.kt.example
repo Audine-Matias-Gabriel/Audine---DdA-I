@@ -1,0 +1,38 @@
+package com.audine.dedalo.core.data.local
+
+import com.audine.dedalo.projects.data.ProjectDao
+import com.audine.dedalo.projects.data.ProjectEntity
+import com.audine.dedalo.projects.data.StageDao
+import com.audine.dedalo.projects.data.StageEntity
+import java.util.UUID
+
+object TestData {
+
+    suspend fun seed(projectDao: ProjectDao, stageDao: StageDao) {
+        if (projectDao.count() > 0) return
+
+        val obras = listOf(
+            ProjectEntity(
+                id = UUID.randomUUID().toString(),
+                nombre = "Nombre de la obra",
+                direccion = "Dirección completa",
+                latitud = -34.6037,
+                longitud = -58.3816,
+                fos = "2025-01-01",
+                fot = "2025-12-31",
+                createdAt = System.currentTimeMillis(),
+                updatedAt = System.currentTimeMillis()
+            )
+        )
+
+        val stages = listOf(
+            StageEntity(
+                id = UUID.randomUUID().toString(), obraId = obras[0].id,
+                nombre = "Etapa 1", posicion = 1, estado = "ESPERA"
+            )
+        )
+
+        projectDao.upsertAll(obras)
+        stageDao.upsertAll(stages)
+    }
+}

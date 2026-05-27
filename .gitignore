@@ -25,6 +25,9 @@ AGENTS.md
 # Room schema export
 /schemas
 
+# Test data
+**/TestData.kt
+
 # Misc
 *.log
 *.tmp

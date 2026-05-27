@@ -32,16 +32,6 @@ class AuthViewModel(
         }
     }
 
-    fun signInWithGoogle(idToken: String) {
-        viewModelScope.launch {
-            try {
-                authRepository.signInWithGoogle(idToken)
-            } catch (e: Exception) {
-                _uiState.update { AuthUiState.Error(e.message ?: "Error al iniciar sesión") }
-            }
-        }
-    }
-
     fun signOut() {
         viewModelScope.launch {
             authRepository.signOut()

@@ -5,6 +5,7 @@ import androidx.room.Room
 import com.audine.dedalo.auth.data.AuthRepository
 import com.audine.dedalo.auth.data.UserDao
 import com.audine.dedalo.core.data.local.DedaloDatabase
+import com.audine.dedalo.core.data.local.TestData
 import com.audine.dedalo.core.data.remote.LocationiqService
 import com.audine.dedalo.projects.data.FirebaseSyncManager
 import com.audine.dedalo.projects.data.ProjectDao
@@ -16,6 +17,7 @@ import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
 class AppContainer(context: Context) {
     val auth = FirebaseAuth.getInstance()
@@ -56,5 +58,8 @@ class AppContainer(context: Context) {
 
     init {
         firebaseSyncManager.startListening()
+        applicationScope.launch {
+            TestData.seed(projectDao, stageDao)
+        }
     }
 }

@@ -54,7 +54,6 @@ fun NavGraph(rootNavController: NavHostController) {
             val uiState by authViewModel.uiState.collectAsStateWithLifecycle()
             LoginScreen(
                 uiState = uiState,
-                onSignInWithGoogle = { idToken -> authViewModel.signInWithGoogle(idToken) },
                 onLoginSuccess = {
                     rootNavController.navigate(Routes.MAIN) {
                         popUpTo(Routes.LOGIN) { inclusive = true }

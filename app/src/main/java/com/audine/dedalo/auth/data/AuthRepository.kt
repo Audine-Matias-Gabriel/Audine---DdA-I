@@ -1,5 +1,6 @@
 package com.audine.dedalo.auth.data
 
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
@@ -37,14 +38,21 @@ class AuthRepository(
     fun observeAuthState(): Flow<AuthState> = authStateFlow
 
     suspend fun signInWithGoogle(idToken: String) {
+        Log.d("Auth", "signInWithGoogle en AuthRepository: creando credential y llamando a Firebase")
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         val authResult = auth.signInWithCredential(credential).await()
-        authResult.user?.let { persistUser(it) }
+        Log.d("Auth", "Firebase signInWithCredential completado, user=${authResult.user?.uid}")
+        authResult.user?.let {
+            Log.d("Auth", "Usuario autenticado: ${it.uid}, email=${it.email}")
+            persistUser(it)
+        } ?: Log.w("Auth", "Firebase authResult.user es null")
     }
 
     suspend fun persistUser(firebaseUser: FirebaseUser) {
+        Log.d("Auth", "persistUser: limpiando currentUser y guardando ${firebaseUser.uid}")
         userDao.clearCurrentUser()
         userDao.upsert(firebaseUser.toEntity().copy(isCurrentUser = true))
+        Log.d("Auth", "persistUser completado")
     }
 
     suspend fun clearUser() {

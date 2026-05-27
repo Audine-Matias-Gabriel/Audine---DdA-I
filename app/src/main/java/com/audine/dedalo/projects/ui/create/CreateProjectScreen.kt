@@ -32,6 +32,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -39,6 +40,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -50,6 +52,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -143,7 +146,12 @@ fun CreateProjectContent(
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
+                )
             )
         }
     ) { innerPadding ->
@@ -153,13 +161,18 @@ fun CreateProjectContent(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {
+                SectionHeader("Información general")
+            }
+
+            item {
                 OutlinedTextField(
                     value = nombre,
                     onValueChange = onNombreChange,
                     label = { Text("Nombre") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
-                    enabled = !isSaving
+                    enabled = !isSaving,
+                    shape = RoundedCornerShape(12.dp)
                 )
             }
 
@@ -171,17 +184,19 @@ fun CreateProjectContent(
                         label = { Text("Dirección") },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
-                        enabled = !isSaving
+                        enabled = !isSaving,
+                        shape = RoundedCornerShape(12.dp)
                     )
                     if (showSuggestions && suggestions.isNotEmpty()) {
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(top = 60.dp),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                            shape = RoundedCornerShape(12.dp),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
                         ) {
                             Column(modifier = Modifier.fillMaxWidth()) {
-                                suggestions.forEach { suggestion ->
+                                suggestions.forEachIndexed { index, suggestion ->
                                     Text(
                                         text = suggestion.displayName,
                                         modifier = Modifier
@@ -194,11 +209,21 @@ fun CreateProjectContent(
                                         style = MaterialTheme.typography.bodyMedium,
                                         maxLines = 2
                                     )
+                                    if (index < suggestions.lastIndex) {
+                                        HorizontalDivider(
+                                            modifier = Modifier.padding(horizontal = 12.dp),
+                                            color = MaterialTheme.colorScheme.outlineVariant
+                                        )
+                                    }
                                 }
                             }
                         }
                     }
                 }
+            }
+
+            item {
+                SectionHeader("Parámetros urbanísticos")
             }
 
             item {
@@ -209,7 +234,8 @@ fun CreateProjectContent(
                         label = { Text("FOS") },
                         singleLine = true,
                         modifier = Modifier.weight(1f),
-                        enabled = !isSaving
+                        enabled = !isSaving,
+                        shape = RoundedCornerShape(12.dp)
                     )
                     OutlinedTextField(
                         value = fot,
@@ -217,13 +243,17 @@ fun CreateProjectContent(
                         label = { Text("FOT") },
                         singleLine = true,
                         modifier = Modifier.weight(1f),
-                        enabled = !isSaving
+                        enabled = !isSaving,
+                        shape = RoundedCornerShape(12.dp)
                     )
                 }
             }
 
             item {
-                Text("Imágenes", style = MaterialTheme.typography.titleSmall)
+                SectionHeader("Imágenes")
+            }
+
+            item {
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     items(selectedImages, key = { it.uri.toString() }) { selected ->
                         Column(modifier = Modifier.width(100.dp)) {
@@ -305,7 +335,8 @@ fun CreateProjectContent(
                 }
                 Button(
                     onClick = onSave,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().height(52.dp),
+                    shape = RoundedCornerShape(12.dp),
                     enabled = isFormValid && !isSaving
                 ) {
                     if (isSaving) {
@@ -321,6 +352,16 @@ fun CreateProjectContent(
             }
         }
     }
+}
+
+@Composable
+private fun SectionHeader(title: String) {
+    Text(
+        text = title,
+        style = MaterialTheme.typography.titleSmall,
+        fontWeight = FontWeight.SemiBold,
+        color = MaterialTheme.colorScheme.primary
+    )
 }
 
 @Preview(showBackground = true, showSystemUi = false)

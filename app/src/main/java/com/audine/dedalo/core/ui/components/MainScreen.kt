@@ -6,15 +6,19 @@ import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Forum
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -36,7 +40,7 @@ import com.audine.dedalo.projects.ui.list.ProjectsViewModel
 private data class BottomNavItem(
     val route: String,
     val label: String,
-    val icon: @Composable () -> Unit
+    val icon: ImageVector
 )
 
 @Composable
@@ -50,19 +54,28 @@ fun MainScreen(
     val currentDestination = navBackStackEntry?.destination
 
     val items = listOf(
-        BottomNavItem(Routes.PROJECTS, "Obras", { Icon(Icons.Default.Build, contentDescription = "Obras") }),
-        BottomNavItem(Routes.CHAT, "Chat", { Icon(Icons.Default.Forum, contentDescription = "Chat") }),
-        BottomNavItem(Routes.PROFILE, "Perfil", { Icon(Icons.Default.Person, contentDescription = "Perfil") })
+        BottomNavItem(Routes.PROJECTS, "Obras", Icons.Default.Build),
+        BottomNavItem(Routes.CHAT, "Chat", Icons.Default.Forum),
+        BottomNavItem(Routes.PROFILE, "Perfil", Icons.Default.Person)
     )
 
     Scaffold(
         bottomBar = {
-            NavigationBar {
+            NavigationBar(
+                containerColor = MaterialTheme.colorScheme.surface,
+                tonalElevation = 2.dp
+            ) {
                 items.forEach { item ->
+                    val selected = currentDestination?.hierarchy?.any { it.route == item.route } == true
                     NavigationBarItem(
-                        icon = item.icon,
+                        icon = {
+                            Icon(
+                                imageVector = item.icon,
+                                contentDescription = item.label
+                            )
+                        },
                         label = { Text(item.label) },
-                        selected = currentDestination?.hierarchy?.any { it.route == item.route } == true,
+                        selected = selected,
                         onClick = {
                             innerNavController.navigate(item.route) {
                                 popUpTo(innerNavController.graph.findStartDestination().id) {
@@ -71,7 +84,14 @@ fun MainScreen(
                                 launchSingleTop = true
                                 restoreState = true
                             }
-                        }
+                        },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = MaterialTheme.colorScheme.primary,
+                            selectedTextColor = MaterialTheme.colorScheme.primary,
+                            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            indicatorColor = MaterialTheme.colorScheme.primaryContainer
+                        )
                     )
                 }
             }
@@ -88,8 +108,11 @@ fun MainScreen(
                     factory = ViewModelFactory { ProjectsViewModel(app.container.projectRepository) }
                 )
                 val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
                 ProjectsListScreen(
                     uiState = uiState,
+                    searchQuery = searchQuery,
+                    onSearchQueryChange = viewModel::onSearchQueryChange,
                     onCreateProject = onCreateProject,
                     onNavigateToProjectDetail = onNavigateToProjectDetail
                 )

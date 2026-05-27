@@ -19,10 +19,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.outlined.Image
+import androidx.compose.material.icons.outlined.LocationOn
+import androidx.compose.material.icons.outlined.Straighten
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -30,10 +34,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -74,7 +80,12 @@ fun ProjectDetailScreen(
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
+                )
             )
         }
     ) { innerPadding ->
@@ -111,6 +122,9 @@ fun ProjectDetailScreen(
 
                     if (state.project.stages.isNotEmpty()) {
                         item {
+                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                        }
+                        item {
                             Text(
                                 text = "Etapas",
                                 style = MaterialTheme.typography.titleMedium,
@@ -123,6 +137,9 @@ fun ProjectDetailScreen(
                     }
 
                     if (state.project.images.isNotEmpty()) {
+                        item {
+                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                        }
                         item {
                             GallerySection(
                                 images = state.project.images,
@@ -140,38 +157,48 @@ fun ProjectDetailScreen(
 private fun GeneralInfoSection(project: Project) {
     Card(
         modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            InfoRow("Dirección", project.direccion)
-            Spacer(Modifier.height(4.dp))
-            InfoRow("Latitud", project.latitud.toString())
-            Spacer(Modifier.height(4.dp))
-            InfoRow("Longitud", project.longitud.toString())
+            InfoRow(Icons.Outlined.LocationOn, "Dirección", project.direccion)
+            Spacer(Modifier.height(8.dp))
+            InfoRow(Icons.Outlined.Straighten, "Latitud", project.latitud.toString())
+            Spacer(Modifier.height(8.dp))
+            InfoRow(Icons.Outlined.Straighten, "Longitud", project.longitud.toString())
             if (project.fos.isNotBlank()) {
-                Spacer(Modifier.height(4.dp))
-                InfoRow("FOS", project.fos)
+                Spacer(Modifier.height(8.dp))
+                InfoRow(Icons.Outlined.Image, "FOS", project.fos)
             }
             if (project.fot.isNotBlank()) {
-                Spacer(Modifier.height(4.dp))
-                InfoRow("FOT", project.fot)
+                Spacer(Modifier.height(8.dp))
+                InfoRow(Icons.Outlined.Image, "FOT", project.fot)
             }
         }
     }
 }
 
 @Composable
-private fun InfoRow(label: String, value: String) {
-    Column {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+private fun InfoRow(icon: ImageVector, label: String, value: String) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            modifier = Modifier.size(18.dp),
+            tint = MaterialTheme.colorScheme.primary
         )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyMedium
-        )
+        Spacer(Modifier.width(8.dp))
+        Column {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = value,
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
     }
 }
 
@@ -179,6 +206,7 @@ private fun InfoRow(label: String, value: String) {
 private fun StageCard(stage: Stage) {
     Card(
         modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Row(
@@ -216,7 +244,7 @@ private fun StageCard(stage: Stage) {
 private fun StageBadge(status: StageStatus) {
     val (text, color) = when (status) {
         StageStatus.ESPERA -> "Espera" to MaterialTheme.colorScheme.outline
-        StageStatus.EN_PROGRESO -> "En Progreso" to MaterialTheme.colorScheme.primary
+        StageStatus.EN_PROGRESO -> "En Progreso" to MaterialTheme.colorScheme.secondary
         StageStatus.FINALIZADA -> "Finalizada" to MaterialTheme.colorScheme.tertiary
     }
     Surface(
