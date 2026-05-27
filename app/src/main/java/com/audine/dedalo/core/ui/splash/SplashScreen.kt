@@ -10,6 +10,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -18,7 +21,6 @@ import com.audine.dedalo.auth.domain.AuthUiState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.snapshotFlow
 
 @Composable
 fun SplashScreen(
@@ -27,15 +29,19 @@ fun SplashScreen(
     onNavigateToMain: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val currentState by rememberUpdatedState(uiState)
+
     LaunchedEffect(Unit) {
-        delay(2000)
-        val finalState = snapshotFlow { uiState }
+        delay(2000L)
+        snapshotFlow { currentState }
             .filter { it !is AuthUiState.Loading }
             .first()
-        when (finalState) {
-            is AuthUiState.Authenticated -> onNavigateToMain()
-            else -> onNavigateToLogin()
-        }
+            .let { state ->
+                when (state) {
+                    is AuthUiState.Authenticated -> onNavigateToMain()
+                    else -> onNavigateToLogin()
+                }
+            }
     }
 
     Box(

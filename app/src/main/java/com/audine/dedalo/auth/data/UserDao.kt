@@ -1,8 +1,9 @@
 package com.audine.dedalo.auth.data
 
 import androidx.room.Dao
+import androidx.room.OnConflictStrategy
+import androidx.room.Insert
 import androidx.room.Query
-import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -14,7 +15,7 @@ interface UserDao {
     @Query("SELECT * FROM users WHERE id = :id")
     suspend fun getById(id: String): UserEntity?
 
-    @Upsert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(user: UserEntity)
 
     @Query("UPDATE users SET isCurrentUser = 0")

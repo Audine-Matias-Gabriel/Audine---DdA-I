@@ -1,6 +1,5 @@
 package com.audine.dedalo.auth.ui
 
-import android.app.Activity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +23,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.credentials.CredentialManager
+import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import com.audine.dedalo.auth.domain.AuthUiState
 import com.audine.dedalo.core.data.remote.AuthConfig
@@ -41,7 +41,6 @@ fun LoginScreen(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val activity = context as? Activity
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(uiState) {
@@ -86,9 +85,14 @@ fun LoginScreen(
                                 .addCredentialOption(googleIdOption)
                                 .build()
                             val result = CredentialManager.create(context)
-                                .getCredential(request, activity!!)
-                            val credential = GoogleIdTokenCredential.createFrom(result.credential.data)
-                            onSignInWithGoogle(credential.idToken)
+                                .getCredential(context, request)
+                            val credential = result.credential
+                            if (credential is CustomCredential &&
+                                credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
+                            ) {
+                                val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+                                onSignInWithGoogle(googleIdTokenCredential.idToken)
+                            }
                         } catch (_: CancellationException) {
                             // User cancelled dialog
                         } catch (_: Exception) {
