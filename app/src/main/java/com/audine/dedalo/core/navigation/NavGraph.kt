@@ -14,6 +14,8 @@ import com.audine.dedalo.core.di.ViewModelFactory
 import com.audine.dedalo.core.ui.components.ImageViewerScreen
 import com.audine.dedalo.core.ui.components.MainScreen
 import com.audine.dedalo.core.ui.splash.SplashScreen
+import com.audine.dedalo.projects.ui.create.CreateProjectScreen
+import com.audine.dedalo.projects.ui.create.CreateProjectViewModel
 import com.audine.dedalo.projects.ui.detail.ProjectDetailScreen
 
 @Composable
@@ -63,7 +65,26 @@ fun NavGraph(rootNavController: NavHostController) {
                 },
                 onNavigateToImageViewer = { url ->
                     rootNavController.navigate(Routes.imageViewer(url))
+                },
+                onCreateProject = {
+                    rootNavController.navigate(Routes.CREATE_PROJECT)
                 }
+            )
+        }
+        composable(Routes.CREATE_PROJECT) {
+            val app = LocalContext.current.applicationContext as DedaloApp
+            val viewModel: CreateProjectViewModel = viewModel(
+                factory = ViewModelFactory {
+                    CreateProjectViewModel(
+                        repository = app.container.projectRepository,
+                        locationiqService = app.container.locationiqService,
+                        storage = app.container.storage
+                    )
+                }
+            )
+            CreateProjectScreen(
+                viewModel = viewModel,
+                onNavigateBack = { rootNavController.popBackStack() }
             )
         }
         composable(Routes.PROJECT_DETAIL) {

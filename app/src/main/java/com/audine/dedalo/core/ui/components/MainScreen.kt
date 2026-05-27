@@ -13,6 +13,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -20,10 +23,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.audine.dedalo.DedaloApp
 import com.audine.dedalo.chat.ui.ChatScreen
+import com.audine.dedalo.core.di.ViewModelFactory
 import com.audine.dedalo.core.navigation.Routes
 import com.audine.dedalo.profile.ui.ProfileScreen
 import com.audine.dedalo.projects.ui.list.ProjectsListScreen
+import com.audine.dedalo.projects.ui.list.ProjectsViewModel
 
 private data class BottomNavItem(
     val route: String,
@@ -34,7 +40,8 @@ private data class BottomNavItem(
 @Composable
 fun MainScreen(
     onNavigateToProjectDetail: (String) -> Unit,
-    onNavigateToImageViewer: (String) -> Unit
+    onNavigateToImageViewer: (String) -> Unit,
+    onCreateProject: () -> Unit
 ) {
     val innerNavController = rememberNavController()
     val navBackStackEntry by innerNavController.currentBackStackEntryAsState()
@@ -74,7 +81,16 @@ fun MainScreen(
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(Routes.PROJECTS) {
-                ProjectsListScreen(onNavigateToProjectDetail = onNavigateToProjectDetail)
+                val app = LocalContext.current.applicationContext as DedaloApp
+                val viewModel: ProjectsViewModel = viewModel(
+                    factory = ViewModelFactory { ProjectsViewModel(app.container.projectRepository) }
+                )
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                ProjectsListScreen(
+                    uiState = uiState,
+                    onCreateProject = onCreateProject,
+                    onNavigateToProjectDetail = onNavigateToProjectDetail
+                )
             }
             composable(Routes.CHAT) { ChatScreen() }
             composable(Routes.PROFILE) { ProfileScreen() }
