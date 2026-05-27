@@ -6,8 +6,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.audine.dedalo.DedaloApp
 import com.audine.dedalo.auth.ui.AuthViewModel
 import com.audine.dedalo.auth.ui.LoginScreen
@@ -18,6 +20,7 @@ import com.audine.dedalo.core.ui.splash.SplashScreen
 import com.audine.dedalo.projects.ui.create.CreateProjectScreen
 import com.audine.dedalo.projects.ui.create.CreateProjectViewModel
 import com.audine.dedalo.projects.ui.detail.ProjectDetailScreen
+import com.audine.dedalo.projects.ui.detail.ProjectDetailViewModel
 
 @Composable
 fun NavGraph(rootNavController: NavHostController) {
@@ -88,16 +91,37 @@ fun NavGraph(rootNavController: NavHostController) {
                 onNavigateBack = { rootNavController.popBackStack() }
             )
         }
-        composable(Routes.PROJECT_DETAIL) {
+        composable(
+            route = Routes.PROJECT_DETAIL,
+            arguments = listOf(navArgument("obraId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val app = LocalContext.current.applicationContext as DedaloApp
+            val obraId = backStackEntry.arguments?.getString("obraId") ?: return@composable
+            val viewModel: ProjectDetailViewModel = viewModel(
+                key = "project_detail_$obraId",
+                factory = ViewModelFactory {
+                    ProjectDetailViewModel(
+                        repository = app.container.projectRepository,
+                        obraId = obraId
+                    )
+                }
+            )
+            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
             ProjectDetailScreen(
+                uiState = uiState,
                 onNavigateBack = { rootNavController.popBackStack() },
                 onNavigateToImageViewer = { url ->
                     rootNavController.navigate(Routes.imageViewer(url))
                 }
             )
         }
-        composable(Routes.IMAGE_VIEWER) {
+        composable(
+            route = Routes.IMAGE_VIEWER,
+            arguments = listOf(navArgument("imageUrl") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val imageUrl = backStackEntry.arguments?.getString("imageUrl") ?: return@composable
             ImageViewerScreen(
+                imageUrl = imageUrl,
                 onNavigateBack = { rootNavController.popBackStack() }
             )
         }
