@@ -2,8 +2,11 @@ package com.audine.dedalo.core.di
 
 import android.content.Context
 import androidx.room.Room
+import com.audine.dedalo.BuildConfig
 import com.audine.dedalo.auth.data.AuthRepository
 import com.audine.dedalo.auth.data.UserDao
+import com.audine.dedalo.chat.data.ChatRepository
+import com.audine.dedalo.chat.data.GeminiApiService
 import com.audine.dedalo.core.data.local.DedaloDatabase
 import com.audine.dedalo.core.data.local.TestData
 import com.audine.dedalo.core.data.remote.LocationiqService
@@ -35,6 +38,12 @@ class AppContainer(context: Context) {
     val userDao: UserDao = database.userDao()
 
     val locationiqService: LocationiqService = LocationiqService.create()
+    val geminiApiService: GeminiApiService = GeminiApiService.create()
+    val chatRepository = ChatRepository(
+        dao = database.chatMessageDao(),
+        api = geminiApiService,
+        apiKey = BuildConfig.GEMINI_API_KEY
+    )
 
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 

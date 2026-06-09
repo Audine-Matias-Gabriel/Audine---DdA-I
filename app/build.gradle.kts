@@ -6,6 +6,11 @@ plugins {
     id("com.google.gms.google-services")
 }
 
+val secretsFile = rootProject.file("secrets.properties")
+val secrets = java.util.Properties().apply {
+    if (secretsFile.exists()) load(secretsFile.inputStream())
+}
+
 android {
     namespace = "com.audine.dedalo"
     compileSdk = 36
@@ -18,6 +23,10 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "LOCATIONIQ_API_KEY", "\"${secrets.getProperty("LOCATIONIQ_API_KEY", "")}\"")
+        buildConfigField("String", "GEMINI_API_KEY", "\"${secrets.getProperty("GEMINI_API_KEY", "")}\"")
+        buildConfigField("String", "WEB_ID", "\"${secrets.getProperty("WEB_ID", "")}\"")
     }
 
     buildTypes {
@@ -39,6 +48,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 

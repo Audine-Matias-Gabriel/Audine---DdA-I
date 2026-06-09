@@ -3,6 +3,7 @@ package com.audine.dedalo.projects.ui.create
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.audine.dedalo.BuildConfig
 import com.audine.dedalo.core.data.remote.LocationiqResponse
 import com.audine.dedalo.core.data.remote.LocationiqService
 import com.audine.dedalo.projects.data.ImageData
@@ -32,10 +33,6 @@ class CreateProjectViewModel(
     private val locationiqService: LocationiqService,
     private val storage: FirebaseStorage
 ) : ViewModel() {
-
-    companion object {
-        private const val LOCATIONIQ_API_KEY = "pk.587b6500bfeb73f0ff965649fd7503f0"
-    }
 
     private val _nombre = MutableStateFlow("")
     val nombre: StateFlow<String> = _nombre.asStateFlow()
@@ -74,7 +71,7 @@ class CreateProjectViewModel(
                 .filter { it.length >= 3 }
                 .mapLatest { query ->
                     try {
-                        locationiqService.autocomplete(LOCATIONIQ_API_KEY, query)
+                        locationiqService.autocomplete(BuildConfig.LOCATIONIQ_API_KEY, query)
                     } catch (_: Exception) {
                         emptyList()
                     }

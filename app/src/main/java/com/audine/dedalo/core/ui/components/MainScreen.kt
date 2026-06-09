@@ -30,6 +30,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.audine.dedalo.DedaloApp
 import com.audine.dedalo.chat.ui.ChatScreen
+import com.audine.dedalo.chat.ui.ChatViewModel
 import com.audine.dedalo.core.di.ViewModelFactory
 import com.audine.dedalo.core.navigation.Routes
 import com.audine.dedalo.profile.ui.ProfileScreen
@@ -117,7 +118,19 @@ fun MainScreen(
                     onNavigateToProjectDetail = onNavigateToProjectDetail
                 )
             }
-            composable(Routes.CHAT) { ChatScreen() }
+            composable(Routes.CHAT) {
+                val app = LocalContext.current.applicationContext as DedaloApp
+                val viewModel: ChatViewModel = viewModel(
+                    factory = ViewModelFactory { ChatViewModel(app.container.chatRepository) }
+                )
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                ChatScreen(
+                    uiState = uiState,
+                    onSendMessage = viewModel::sendMessage,
+                    onClearHistory = viewModel::clearHistory,
+                    onClearError = viewModel::clearError
+                )
+            }
             composable(Routes.PROFILE) { ProfileScreen() }
         }
     }
