@@ -71,6 +71,12 @@ fun NavGraph(rootNavController: NavHostController) {
                 },
                 onCreateProject = {
                     rootNavController.navigate(Routes.CREATE_PROJECT)
+                },
+                onSignOut = {
+                    authViewModel.signOut()
+                    rootNavController.navigate(Routes.LOGIN) {
+                        popUpTo(Routes.MAIN) { inclusive = true }
+                    }
                 }
             )
         }

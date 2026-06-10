@@ -33,8 +33,9 @@ import com.audine.dedalo.chat.ui.ChatScreen
 import com.audine.dedalo.chat.ui.ChatViewModel
 import com.audine.dedalo.core.di.ViewModelFactory
 import com.audine.dedalo.core.navigation.Routes
-import com.audine.dedalo.profile.ui.ProfileScreen
 import com.audine.dedalo.core.ui.theme.DedaloTheme
+import com.audine.dedalo.profile.ui.ProfileScreen
+import com.audine.dedalo.profile.ui.ProfileViewModel
 import com.audine.dedalo.projects.ui.list.ProjectsListScreen
 import com.audine.dedalo.projects.ui.list.ProjectsViewModel
 
@@ -48,7 +49,8 @@ private data class BottomNavItem(
 fun MainScreen(
     onNavigateToProjectDetail: (String) -> Unit,
     onNavigateToImageViewer: (String) -> Unit,
-    onCreateProject: () -> Unit
+    onCreateProject: () -> Unit,
+    onSignOut: () -> Unit
 ) {
     val innerNavController = rememberNavController()
     val navBackStackEntry by innerNavController.currentBackStackEntryAsState()
@@ -131,7 +133,25 @@ fun MainScreen(
                     onClearError = viewModel::clearError
                 )
             }
-            composable(Routes.PROFILE) { ProfileScreen() }
+            composable(Routes.PROFILE) {
+                val app = LocalContext.current.applicationContext as DedaloApp
+                val viewModel: ProfileViewModel = viewModel(
+                    factory = ViewModelFactory {
+                        ProfileViewModel(
+                            authRepository = app.container.authRepository,
+                            profileRepository = app.container.profileRepository
+                        )
+                    }
+                )
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                ProfileScreen(
+                    uiState = uiState,
+                    onUploadGalleryImage = viewModel::uploadGalleryImage,
+                    onUploadAvatar = viewModel::uploadAvatar,
+                    onSignOut = onSignOut,
+                    onNavigateToImageViewer = onNavigateToImageViewer
+                )
+            }
         }
     }
 }
@@ -139,5 +159,12 @@ fun MainScreen(
 @Preview(showBackground = true, showSystemUi = false, device = "id:pixel_6")
 @Composable
 private fun MainScreenPreview() {
-    DedaloTheme { MainScreen(onNavigateToProjectDetail = {}, onNavigateToImageViewer = {}, onCreateProject = {}) }
+    DedaloTheme {
+        MainScreen(
+            onNavigateToProjectDetail = {},
+            onNavigateToImageViewer = {},
+            onCreateProject = {},
+            onSignOut = {}
+        )
+    }
 }

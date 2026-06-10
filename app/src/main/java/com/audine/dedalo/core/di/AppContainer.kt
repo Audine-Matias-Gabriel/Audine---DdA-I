@@ -11,6 +11,7 @@ import com.audine.dedalo.chat.di.ChatModule
 import com.audine.dedalo.core.data.local.DedaloDatabase
 import com.audine.dedalo.core.data.local.TestData
 import com.audine.dedalo.core.data.remote.LocationiqService
+import com.audine.dedalo.profile.data.ProfileRepository
 import com.audine.dedalo.projects.data.FirebaseSyncManager
 import com.audine.dedalo.projects.data.ProjectDao
 import com.audine.dedalo.projects.data.ProjectRepository
@@ -58,6 +59,12 @@ class AppContainer(context: Context) {
     val authRepository = AuthRepository(
         auth = auth,
         userDao = userDao
+    )
+
+    val profileRepository = ProfileRepository(
+        galleryDao = database.galleryDao(),
+        firestore = firestore,
+        storage = storage
     )
 
     val projectRepository = ProjectRepository(
