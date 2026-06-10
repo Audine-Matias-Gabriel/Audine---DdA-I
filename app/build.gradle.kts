@@ -7,9 +7,14 @@ plugins {
 }
 
 val secretsFile = rootProject.file("secrets.properties")
-val secrets = java.util.Properties().apply {
-    if (secretsFile.exists()) load(secretsFile.inputStream())
-}
+val secrets = if (secretsFile.exists()) {
+    secretsFile.readLines()
+        .filter { it.contains("=") && !it.startsWith("#") }
+        .associate {
+            val (key, value) = it.split("=", limit = 2)
+            key.trim() to value.trim()
+        }
+} else emptyMap()
 
 android {
     namespace = "com.audine.dedalo"
@@ -24,9 +29,9 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField("String", "LOCATIONIQ_API_KEY", "\"${secrets.getProperty("LOCATIONIQ_API_KEY", "")}\"")
-        buildConfigField("String", "GEMINI_API_KEY", "\"${secrets.getProperty("GEMINI_API_KEY", "")}\"")
-        buildConfigField("String", "WEB_ID", "\"${secrets.getProperty("WEB_ID", "")}\"")
+        buildConfigField("String", "LOCATIONIQ_API_KEY", "\"${secrets["LOCATIONIQ_API_KEY"] ?: ""}\"")
+        buildConfigField("String", "GEMINI_API_KEY", "\"${secrets["GEMINI_API_KEY"] ?: ""}\"")
+        buildConfigField("String", "WEB_ID", "\"${secrets["WEB_ID"] ?: ""}\"")
     }
 
     buildTypes {

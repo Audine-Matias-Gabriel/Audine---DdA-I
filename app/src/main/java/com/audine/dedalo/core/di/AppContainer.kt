@@ -7,6 +7,7 @@ import com.audine.dedalo.auth.data.AuthRepository
 import com.audine.dedalo.auth.data.UserDao
 import com.audine.dedalo.chat.data.ChatRepository
 import com.audine.dedalo.chat.data.GeminiApiService
+import com.audine.dedalo.chat.di.ChatModule
 import com.audine.dedalo.core.data.local.DedaloDatabase
 import com.audine.dedalo.core.data.local.TestData
 import com.audine.dedalo.core.data.remote.LocationiqService
@@ -39,7 +40,7 @@ class AppContainer(context: Context) {
 
     val locationiqService: LocationiqService = LocationiqService.create()
     val geminiApiService: GeminiApiService = GeminiApiService.create()
-    val chatRepository = ChatRepository(
+    val chatRepository: ChatRepository = ChatModule.provideChatRepository(
         dao = database.chatMessageDao(),
         api = geminiApiService,
         apiKey = BuildConfig.GEMINI_API_KEY
