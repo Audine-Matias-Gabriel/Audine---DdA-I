@@ -1,6 +1,6 @@
 # Dedalo
 
-Aplicación mobile para gestión de obras de construcción con mapas, etapas y chat IA.
+Aplicación mobile para gestión de obras de construcción con etapas, chat IA y perfil de usuario.
 
 Proyecto universitario — **UADE**, Desarrollo de Aplicaciones I  
 **Alumno:** Matias Gabriel Audine
@@ -11,24 +11,32 @@ Proyecto universitario — **UADE**, Desarrollo de Aplicaciones I
 
 - **Lenguaje:** Kotlin 2.0.21
 - **UI:** Jetpack Compose + Material 3
-- **Arquitectura:** MVVM + DI manual (AppContainer)
-- **Base de datos local:** Room (offline-first)
+- **Arquitectura:** MVVM + Hilt DI (KSP)
+- **Base de datos local:** Room 2.7.1 (offline-first, SSOT)
 - **Backend:** Firebase Auth, Firestore, Storage
-- **Mapas:** MapLibre GL
 - **Geocoding:** LocationIQ (Retrofit)
-- **Chat IA:** Gemini API
+- **Chat IA:** Gemini API (Retrofit)
+- **Mapas:** MapLibre GL (pendiente de implementación)
+- **Tests:** MockK + Turbine + StandardTestDispatcher
 
 ## Features
 
-- Autenticación con Google
-- CRUD de obras con datos urbanísticos (FOS, FOT)
-- Etapas de obra con estados (ESPERA / EN_PROGRESO / FINALIZADA)
-- Galería de imágenes con carga a Firebase Storage
-- Geocoding automático al ingresar dirección
-- Mapa interactivo con ubicación de obras
-- Chat con IA (Gemini)
-- Perfil de usuario
-- Persistencia offline (Room sincronizado con Firestore)
+- [x] Autenticación con Google
+- [x] CRUD de obras con datos urbanísticos (FOS, FOT)
+- [x] Etapas de obra con estados (ESPERA / EN_PROGRESO / FINALIZADA)
+- [x] Galería de imágenes con carga a Firebase Storage
+- [x] Geocoding automático al ingresar dirección (LocationIQ)
+- [x] Chat con IA (Gemini)
+- [x] Perfil de usuario con galería estilo Instagram
+- [x] Persistencia offline (Room sincronizado con Firestore)
+- [x] DI con Hilt (migrado desde DI manual)
+- [ ] Mapa interactivo con ubicación de obras
+
+## Testing
+
+```bash
+./gradlew test    # Tests unitarios (26 tests)
+```
 
 ## Cómo ejecutar
 
@@ -37,13 +45,14 @@ Proyecto universitario — **UADE**, Desarrollo de Aplicaciones I
 ./gradlew installDebug     # Instalar en dispositivo
 ```
 
-Requiere archivo `google-services.json` de Firebase (no incluido en el repo).
+Requiere archivo `google-services.json` de Firebase (no incluido en el repo)  
+y `secrets.properties` con las API keys.
 
 ---
 
 # Dedalo
 
-Mobile app for construction project management with maps, stages, and AI chat.
+Mobile app for construction project management with stages, AI chat and user profile.
 
 University project — **UADE**, Desarrollo de Aplicaciones I  
 **Student:** Matias Gabriel Audine
@@ -54,24 +63,32 @@ University project — **UADE**, Desarrollo de Aplicaciones I
 
 - **Language:** Kotlin 2.0.21
 - **UI:** Jetpack Compose + Material 3
-- **Architecture:** MVVM + manual DI (AppContainer)
-- **Local database:** Room (offline-first)
+- **Architecture:** MVVM + Hilt DI (KSP)
+- **Local database:** Room 2.7.1 (offline-first, SSOT)
 - **Backend:** Firebase Auth, Firestore, Storage
-- **Maps:** MapLibre GL
 - **Geocoding:** LocationIQ (Retrofit)
-- **AI Chat:** Gemini API
+- **AI Chat:** Gemini API (Retrofit)
+- **Maps:** MapLibre GL (not yet implemented)
+- **Tests:** MockK + Turbine + StandardTestDispatcher
 
 ## Features
 
-- Google authentication
-- Project CRUD with urban planning data (FOS, FOT)
-- Project stages with status (PENDING / IN_PROGRESS / FINISHED)
-- Image gallery with Firebase Storage upload
-- Automatic geocoding on address input
-- Interactive map with project locations
-- AI chat (Gemini)
-- User profile
-- Offline persistence (Room synced with Firestore)
+- [x] Google authentication
+- [x] Project CRUD with urban planning data (FOS, FOT)
+- [x] Project stages with status (PENDING / IN_PROGRESS / FINISHED)
+- [x] Image gallery with Firebase Storage upload
+- [x] Automatic geocoding on address input (LocationIQ)
+- [x] AI chat (Gemini)
+- [x] User profile with Instagram-style gallery
+- [x] Offline persistence (Room synced with Firestore)
+- [x] Hilt DI (migrated from manual DI)
+- [ ] Interactive map with project locations
+
+## Testing
+
+```bash
+./gradlew test    # Unit tests (26 tests)
+```
 
 ## How to run
 
@@ -80,4 +97,5 @@ University project — **UADE**, Desarrollo de Aplicaciones I
 ./gradlew installDebug     # Install on device
 ```
 
-Requires `google-services.json` from Firebase (not included in the repo).
+Requires `google-services.json` from Firebase (not included in the repo)  
+and `secrets.properties` with API keys.
