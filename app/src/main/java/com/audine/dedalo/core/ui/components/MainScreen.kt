@@ -16,11 +16,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -28,10 +27,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.audine.dedalo.DedaloApp
 import com.audine.dedalo.chat.ui.ChatScreen
 import com.audine.dedalo.chat.ui.ChatViewModel
-import com.audine.dedalo.core.di.ViewModelFactory
 import com.audine.dedalo.core.navigation.Routes
 import com.audine.dedalo.core.ui.theme.DedaloTheme
 import com.audine.dedalo.profile.ui.ProfileScreen
@@ -106,10 +103,7 @@ fun MainScreen(
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(Routes.PROJECTS) {
-                val app = LocalContext.current.applicationContext as DedaloApp
-                val viewModel: ProjectsViewModel = viewModel(
-                    factory = ViewModelFactory { ProjectsViewModel(app.container.projectRepository) }
-                )
+                val viewModel: ProjectsViewModel = hiltViewModel()
                 val uiState by viewModel.uiState.collectAsStateWithLifecycle()
                 val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
                 ProjectsListScreen(
@@ -121,10 +115,7 @@ fun MainScreen(
                 )
             }
             composable(Routes.CHAT) {
-                val app = LocalContext.current.applicationContext as DedaloApp
-                val viewModel: ChatViewModel = viewModel(
-                    factory = ViewModelFactory { ChatViewModel(app.container.chatRepository) }
-                )
+                val viewModel: ChatViewModel = hiltViewModel()
                 val uiState by viewModel.uiState.collectAsStateWithLifecycle()
                 ChatScreen(
                     uiState = uiState,
@@ -134,15 +125,7 @@ fun MainScreen(
                 )
             }
             composable(Routes.PROFILE) {
-                val app = LocalContext.current.applicationContext as DedaloApp
-                val viewModel: ProfileViewModel = viewModel(
-                    factory = ViewModelFactory {
-                        ProfileViewModel(
-                            authRepository = app.container.authRepository,
-                            profileRepository = app.container.profileRepository
-                        )
-                    }
-                )
+                val viewModel: ProfileViewModel = hiltViewModel()
                 val uiState by viewModel.uiState.collectAsStateWithLifecycle()
                 ProfileScreen(
                     uiState = uiState,

@@ -2,18 +2,15 @@ package com.audine.dedalo.core.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.audine.dedalo.DedaloApp
 import com.audine.dedalo.auth.ui.AuthViewModel
 import com.audine.dedalo.auth.ui.LoginScreen
-import com.audine.dedalo.core.di.ViewModelFactory
 import com.audine.dedalo.core.ui.components.ImageViewerScreen
 import com.audine.dedalo.core.ui.components.MainScreen
 import com.audine.dedalo.core.ui.splash.SplashScreen
@@ -24,11 +21,7 @@ import com.audine.dedalo.projects.ui.detail.ProjectDetailViewModel
 
 @Composable
 fun NavGraph(rootNavController: NavHostController) {
-    val app = LocalContext.current.applicationContext as DedaloApp
-    val authViewModel: AuthViewModel = viewModel(
-        key = "auth",
-        factory = ViewModelFactory { AuthViewModel(app.container.authRepository) }
-    )
+    val authViewModel: AuthViewModel = hiltViewModel()
 
     NavHost(
         navController = rootNavController,
@@ -81,16 +74,7 @@ fun NavGraph(rootNavController: NavHostController) {
             )
         }
         composable(Routes.CREATE_PROJECT) {
-            val app = LocalContext.current.applicationContext as DedaloApp
-            val viewModel: CreateProjectViewModel = viewModel(
-                factory = ViewModelFactory {
-                    CreateProjectViewModel(
-                        repository = app.container.projectRepository,
-                        locationiqService = app.container.locationiqService,
-                        storage = app.container.storage
-                    )
-                }
-            )
+            val viewModel: CreateProjectViewModel = hiltViewModel()
             CreateProjectScreen(
                 viewModel = viewModel,
                 onNavigateBack = { rootNavController.popBackStack() }
@@ -99,18 +83,8 @@ fun NavGraph(rootNavController: NavHostController) {
         composable(
             route = Routes.PROJECT_DETAIL,
             arguments = listOf(navArgument("obraId") { type = NavType.StringType })
-        ) { backStackEntry ->
-            val app = LocalContext.current.applicationContext as DedaloApp
-            val obraId = backStackEntry.arguments?.getString("obraId") ?: return@composable
-            val viewModel: ProjectDetailViewModel = viewModel(
-                key = "project_detail_$obraId",
-                factory = ViewModelFactory {
-                    ProjectDetailViewModel(
-                        repository = app.container.projectRepository,
-                        obraId = obraId
-                    )
-                }
-            )
+        ) {
+            val viewModel: ProjectDetailViewModel = hiltViewModel()
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
             ProjectDetailScreen(
                 uiState = uiState,

@@ -1,9 +1,11 @@
 package com.audine.dedalo.projects.ui.create
 
 import android.net.Uri
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.audine.dedalo.BuildConfig
+import dagger.hilt.android.lifecycle.HiltViewModel
 import com.audine.dedalo.core.data.remote.LocationiqResponse
 import com.audine.dedalo.core.data.remote.LocationiqService
 import com.audine.dedalo.projects.data.ImageData
@@ -19,6 +21,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
 import java.util.UUID
+import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -28,7 +31,8 @@ data class SelectedImage(
     val type: ImageType = ImageType.PHOTO
 )
 
-class CreateProjectViewModel(
+@HiltViewModel
+class CreateProjectViewModel @Inject constructor(
     private val repository: ProjectRepository,
     private val locationiqService: LocationiqService,
     private val storage: FirebaseStorage

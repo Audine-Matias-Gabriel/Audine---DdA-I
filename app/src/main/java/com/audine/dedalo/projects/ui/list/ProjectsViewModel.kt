@@ -4,12 +4,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.audine.dedalo.projects.data.Project
 import com.audine.dedalo.projects.data.ProjectRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 sealed interface ProjectsUiState {
     data object Loading : ProjectsUiState
@@ -17,7 +19,8 @@ sealed interface ProjectsUiState {
     data class Error(val message: String) : ProjectsUiState
 }
 
-class ProjectsViewModel(
+@HiltViewModel
+class ProjectsViewModel @Inject constructor(
     private val repository: ProjectRepository
 ) : ViewModel() {
 
