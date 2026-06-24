@@ -40,9 +40,10 @@ object AppModule {
         firestore: FirebaseFirestore,
         projectDao: ProjectDao,
         stageDao: StageDao,
+        auth: FirebaseAuth,
         @ApplicationScope scope: CoroutineScope
     ): FirebaseSyncManager {
-        val manager = FirebaseSyncManager(firestore, projectDao, stageDao, scope)
+        val manager = FirebaseSyncManager(firestore, projectDao, stageDao, auth, scope)
         manager.startListening()
         return manager
     }
@@ -50,8 +51,10 @@ object AppModule {
     @Provides @Singleton
     fun provideAuthRepository(
         auth: FirebaseAuth,
-        userDao: UserDao
-    ): AuthRepository = AuthRepository(auth, userDao)
+        userDao: UserDao,
+        firestore: FirebaseFirestore,
+        @ApplicationScope scope: CoroutineScope
+    ): AuthRepository = AuthRepository(auth, userDao, firestore, scope)
 
     @Provides @Singleton
     fun provideProjectRepository(

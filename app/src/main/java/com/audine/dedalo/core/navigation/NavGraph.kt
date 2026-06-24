@@ -1,7 +1,10 @@
 package com.audine.dedalo.core.navigation
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -18,6 +21,8 @@ import com.audine.dedalo.projects.ui.create.CreateProjectScreen
 import com.audine.dedalo.projects.ui.create.CreateProjectViewModel
 import com.audine.dedalo.projects.ui.detail.ProjectDetailScreen
 import com.audine.dedalo.projects.ui.detail.ProjectDetailViewModel
+import com.audine.dedalo.projects.ui.edit.EditProjectScreen
+import com.audine.dedalo.projects.ui.edit.EditProjectViewModel
 
 @Composable
 fun NavGraph(rootNavController: NavHostController) {
@@ -83,15 +88,31 @@ fun NavGraph(rootNavController: NavHostController) {
         composable(
             route = Routes.PROJECT_DETAIL,
             arguments = listOf(navArgument("obraId") { type = NavType.StringType })
-        ) {
+        ) { backStackEntry ->
+            val context = LocalContext.current
+            val obraId = backStackEntry.arguments?.getString("obraId") ?: ""
             val viewModel: ProjectDetailViewModel = hiltViewModel()
-            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
             ProjectDetailScreen(
-                uiState = uiState,
+                viewModel = viewModel,
                 onNavigateBack = { rootNavController.popBackStack() },
+                onNavigateToEdit = { rootNavController.navigate(Routes.editProject(obraId)) },
                 onNavigateToImageViewer = { url ->
                     rootNavController.navigate(Routes.imageViewer(url))
+                },
+                onOpenInMap = { lat, lon ->
+                    val uri = Uri.parse("geo:${lat},${lon}?q=${lat},${lon}")
+                    context.startActivity(Intent(Intent.ACTION_VIEW, uri))
                 }
+            )
+        }
+        composable(
+            route = Routes.EDIT_PROJECT,
+            arguments = listOf(navArgument("obraId") { type = NavType.StringType })
+        ) {
+            val viewModel: EditProjectViewModel = hiltViewModel()
+            EditProjectScreen(
+                viewModel = viewModel,
+                onNavigateBack = { rootNavController.popBackStack() }
             )
         }
         composable(

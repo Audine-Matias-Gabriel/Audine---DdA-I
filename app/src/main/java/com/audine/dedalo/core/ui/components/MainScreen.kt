@@ -106,12 +106,15 @@ fun MainScreen(
                 val viewModel: ProjectsViewModel = hiltViewModel()
                 val uiState by viewModel.uiState.collectAsStateWithLifecycle()
                 val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
+                val isSyncing by viewModel.isSyncing.collectAsStateWithLifecycle()
                 ProjectsListScreen(
                     uiState = uiState,
                     searchQuery = searchQuery,
                     onSearchQueryChange = viewModel::onSearchQueryChange,
                     onCreateProject = onCreateProject,
-                    onNavigateToProjectDetail = onNavigateToProjectDetail
+                    onNavigateToProjectDetail = onNavigateToProjectDetail,
+                    isSyncing = isSyncing,
+                    onSync = viewModel::syncProjects
                 )
             }
             composable(Routes.CHAT) {
@@ -127,12 +130,16 @@ fun MainScreen(
             composable(Routes.PROFILE) {
                 val viewModel: ProfileViewModel = hiltViewModel()
                 val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                val isSyncing by viewModel.isSyncing.collectAsStateWithLifecycle()
                 ProfileScreen(
                     uiState = uiState,
                     onUploadGalleryImage = viewModel::uploadGalleryImage,
                     onUploadAvatar = viewModel::uploadAvatar,
+                    onClearUploadError = viewModel::clearUploadError,
                     onSignOut = onSignOut,
-                    onNavigateToImageViewer = onNavigateToImageViewer
+                    onNavigateToImageViewer = onNavigateToImageViewer,
+                    isSyncing = isSyncing,
+                    onSyncProjects = viewModel::syncProjects
                 )
             }
         }

@@ -10,4 +10,9 @@ sealed interface ProfileUiState {
         val galleryImages: List<GalleryImageEntity>
     ) : ProfileUiState
     data class Error(val message: String) : ProfileUiState
+    data class UploadError(
+        val message: String,
+        val user: UserEntity,
+        val galleryImages: List<GalleryImageEntity>
+    ) : ProfileUiState
 }

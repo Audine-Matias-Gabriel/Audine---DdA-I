@@ -1,11 +1,14 @@
 package com.audine.dedalo.projects.data
 
+import androidx.annotation.Keep
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "projects")
+@Keep
 data class ProjectEntity(
     @PrimaryKey val id: String = "",
+    val userId: String = "",
     val nombre: String,
     val direccion: String,
     val latitud: Double = 0.0,

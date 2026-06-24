@@ -1,6 +1,5 @@
 package com.audine.dedalo.profile.data
 
-import android.net.Uri
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.flow.Flow
@@ -15,10 +14,10 @@ class ProfileRepository(
     fun observeGallery(userId: String): Flow<List<GalleryImageEntity>> =
         galleryDao.observeAll(userId)
 
-    suspend fun uploadGalleryImage(userId: String, imageUri: Uri): String {
+    suspend fun uploadGalleryImage(userId: String, imageBytes: ByteArray): String {
         val imageId = UUID.randomUUID().toString()
         val ref = storage.reference.child("users/$userId/gallery/$imageId.jpg")
-        ref.putFile(imageUri).await()
+        ref.putBytes(imageBytes).await()
         val downloadUrl = ref.downloadUrl.await().toString()
 
         val entity = GalleryImageEntity(
@@ -31,13 +30,19 @@ class ProfileRepository(
         firestore.collection("users").document(userId)
             .collection("gallery").document(imageId)
             .set(mapOf("imageUrl" to downloadUrl, "createdAt" to entity.createdAt))
+            .await()
 
         return downloadUrl
     }
 
-    suspend fun uploadAvatar(userId: String, imageUri: Uri): String {
+    suspend fun uploadAvatar(userId: String, imageBytes: ByteArray): String {
         val ref = storage.reference.child("users/$userId/avatar.jpg")
-        ref.putFile(imageUri).await()
+        ref.putBytes(imageBytes).await()
         return ref.downloadUrl.await().toString()
+    }
+
+    suspend fun updateAvatarUrl(userId: String, downloadUrl: String) {
+        firestore.collection("users").document(userId)
+            .update("photoUrl", downloadUrl).await()
     }
 }

@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Forum
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.outlined.Construction
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -40,6 +41,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -63,6 +65,8 @@ fun ProjectsListScreen(
     onSearchQueryChange: (String) -> Unit,
     onCreateProject: () -> Unit,
     onNavigateToProjectDetail: (String) -> Unit,
+    isSyncing: Boolean = false,
+    onSync: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -86,6 +90,15 @@ fun ProjectsListScreen(
                             unfocusedBorderColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.3f)
                         )
                     )
+                },
+                actions = {
+                    IconButton(onClick = onSync, enabled = !isSyncing) {
+                        Icon(
+                            imageVector = Icons.Default.Sync,
+                            contentDescription = "Sincronizar",
+                            tint = MaterialTheme.colorScheme.onPrimary
+                        )
+                    }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
@@ -230,12 +243,12 @@ private fun ProjectCard(
 }
 
 private val previewProject1 = Project(
-    id = "1", nombre = "Edificio Central",
+    id = "1", userId = "", nombre = "Edificio Central",
     direccion = "Av. Siempre Viva 742", latitud = -34.6037, longitud = -58.3816,
     fos = "0.6", fot = "2.5"
 )
 private val previewProject2 = Project(
-    id = "2", nombre = "Torre Empresarial",
+    id = "2", userId = "", nombre = "Torre Empresarial",
     direccion = "Calle Principal 123", latitud = -34.6020, longitud = -58.3800,
     fos = "0.8", fot = "3.0"
 )

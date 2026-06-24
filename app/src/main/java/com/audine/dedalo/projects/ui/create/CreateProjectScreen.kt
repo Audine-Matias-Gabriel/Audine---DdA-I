@@ -26,14 +26,15 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Surface
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -177,37 +178,40 @@ fun CreateProjectContent(
             }
 
             item {
-                Box {
+                Column {
                     OutlinedTextField(
                         value = direccion,
-                        onValueChange = { onDireccionChange(it); showSuggestions = true },
+                        onValueChange = {
+                            onDireccionChange(it)
+                            showSuggestions = it.isNotEmpty()
+                        },
                         label = { Text("Dirección") },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                         enabled = !isSaving,
                         shape = RoundedCornerShape(12.dp)
                     )
-                    if (showSuggestions && suggestions.isNotEmpty()) {
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 60.dp),
-                            shape = RoundedCornerShape(12.dp),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+                    AnimatedVisibility(visible = showSuggestions && suggestions.isNotEmpty()) {
+                        Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp),
+                            shadowElevation = 4.dp,
+                            color = MaterialTheme.colorScheme.surface
                         ) {
-                            Column(modifier = Modifier.fillMaxWidth()) {
+                            Column {
                                 suggestions.forEachIndexed { index, suggestion ->
-                                    Text(
-                                        text = suggestion.displayName,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .clickable {
-                                                onSuggestionSelected(suggestion)
-                                                showSuggestions = false
-                                            }
-                                            .padding(12.dp),
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        maxLines = 2
+                                    DropdownMenuItem(
+                                        text = {
+                                            Text(
+                                                text = suggestion.displayName,
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                maxLines = 2
+                                            )
+                                        },
+                                        onClick = {
+                                            onSuggestionSelected(suggestion)
+                                            showSuggestions = false
+                                        }
                                     )
                                     if (index < suggestions.lastIndex) {
                                         HorizontalDivider(

@@ -5,6 +5,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.audine.dedalo.BuildConfig
+import com.audine.dedalo.auth.data.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import com.audine.dedalo.core.data.remote.LocationiqResponse
 import com.audine.dedalo.core.data.remote.LocationiqService
@@ -35,7 +36,8 @@ data class SelectedImage(
 class CreateProjectViewModel @Inject constructor(
     private val repository: ProjectRepository,
     private val locationiqService: LocationiqService,
-    private val storage: FirebaseStorage
+    private val storage: FirebaseStorage,
+    private val authRepository: AuthRepository
 ) : ViewModel() {
 
     private val _nombre = MutableStateFlow("")
@@ -85,7 +87,10 @@ class CreateProjectViewModel @Inject constructor(
     }
 
     fun onNombreChange(value: String) { _nombre.value = value }
-    fun onDireccionChange(value: String) { _direccion.value = value }
+    fun onDireccionChange(value: String) {
+        _direccion.value = value
+        _suggestions.value = emptyList()
+    }
     fun onFosChange(value: String) { _fos.value = value }
     fun onFotChange(value: String) { _fot.value = value }
 
@@ -119,6 +124,8 @@ class CreateProjectViewModel @Inject constructor(
             _isSaving.value = true
             _saveError.value = null
             try {
+                val userId = authRepository.currentUserId
+                    ?: throw IllegalStateException("Usuario no autenticado")
                 val images = uploadImages()
                 val project = Project(
                     nombre = _nombre.value.trim(),
@@ -129,7 +136,7 @@ class CreateProjectViewModel @Inject constructor(
                     fot = _fot.value.trim(),
                     images = images
                 )
-                repository.createProject(project)
+                repository.createProject(project, userId)
                 _saveSuccess.value = true
             } catch (e: Exception) {
                 _saveError.value = e.message ?: "Error al guardar la obra"

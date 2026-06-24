@@ -86,7 +86,6 @@ dependencies {
     implementation(libs.firebase.storage)
     implementation(libs.firebase.ai)
     implementation(libs.kotlinx.coroutines.play.services)
-    implementation(libs.maplibre.gl)
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)

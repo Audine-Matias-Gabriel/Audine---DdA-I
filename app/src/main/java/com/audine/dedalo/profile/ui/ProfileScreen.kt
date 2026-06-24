@@ -28,8 +28,10 @@ import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Forum
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -38,8 +40,11 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -63,19 +68,47 @@ fun ProfileScreen(
     uiState: ProfileUiState,
     onUploadGalleryImage: (Uri) -> Unit,
     onUploadAvatar: (Uri) -> Unit,
+    onClearUploadError: () -> Unit,
     onSignOut: () -> Unit,
     onNavigateToImageViewer: (String) -> Unit,
+    isSyncing: Boolean = false,
+    onSyncProjects: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    when (val state = uiState) {
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(uiState) {
+        if (uiState is ProfileUiState.UploadError) {
+            snackbarHostState.showSnackbar((uiState as ProfileUiState.UploadError).message)
+            onClearUploadError()
+        }
+    }
+
+    when (val s = uiState) {
         is ProfileUiState.Loading -> LoadingState(modifier)
-        is ProfileUiState.Error -> ErrorState(state.message, modifier)
-        is ProfileUiState.Success -> ProfileContent(
-            uiState = state,
+        is ProfileUiState.Error -> ErrorState(s.message, modifier)
+        is ProfileUiState.UploadError -> ProfileContent(
+            user = s.user,
+            galleryImages = s.galleryImages,
             onUploadGalleryImage = onUploadGalleryImage,
             onUploadAvatar = onUploadAvatar,
             onSignOut = onSignOut,
             onNavigateToImageViewer = onNavigateToImageViewer,
+            isSyncing = isSyncing,
+            onSyncProjects = onSyncProjects,
+            snackbarHostState = snackbarHostState,
+            modifier = modifier
+        )
+        is ProfileUiState.Success -> ProfileContent(
+            user = s.user,
+            galleryImages = s.galleryImages,
+            onUploadGalleryImage = onUploadGalleryImage,
+            onUploadAvatar = onUploadAvatar,
+            onSignOut = onSignOut,
+            onNavigateToImageViewer = onNavigateToImageViewer,
+            isSyncing = isSyncing,
+            onSyncProjects = onSyncProjects,
+            snackbarHostState = snackbarHostState,
             modifier = modifier
         )
     }
@@ -97,11 +130,15 @@ private fun ErrorState(message: String, modifier: Modifier = Modifier) {
 
 @Composable
 private fun ProfileContent(
-    uiState: ProfileUiState.Success,
+    user: UserEntity,
+    galleryImages: List<GalleryImageEntity>,
     onUploadGalleryImage: (Uri) -> Unit,
     onUploadAvatar: (Uri) -> Unit,
     onSignOut: () -> Unit,
     onNavigateToImageViewer: (String) -> Unit,
+    isSyncing: Boolean = false,
+    onSyncProjects: () -> Unit = {},
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     modifier: Modifier = Modifier
 ) {
     var avatarUri by remember { mutableStateOf<Uri?>(null) }
@@ -126,6 +163,7 @@ private fun ProfileContent(
     }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { galleryPicker.launch("image/*") },
@@ -152,7 +190,7 @@ private fun ProfileContent(
                 ) {
                     AsyncImage(
                         model = ImageRequest.Builder(LocalContext.current)
-                            .data(uiState.user.photoUrl)
+                            .data(user.photoUrl)
                             .crossfade(true)
                             .build(),
                         contentDescription = "Avatar",
@@ -183,14 +221,14 @@ private fun ProfileContent(
                 Spacer(Modifier.height(12.dp))
 
                 Text(
-                    text = uiState.user.displayName ?: "Sin nombre",
+                    text = user.displayName ?: "Sin nombre",
                     style = MaterialTheme.typography.titleLarge
                 )
 
                 Spacer(Modifier.height(4.dp))
 
                 Text(
-                    text = uiState.user.email ?: "Sin email",
+                    text = user.email ?: "Sin email",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -207,9 +245,28 @@ private fun ProfileContent(
                     Spacer(Modifier.width(8.dp))
                     Text("Cerrar sesión")
                 }
+
+                Spacer(Modifier.height(8.dp))
+
+                Button(
+                    onClick = onSyncProjects,
+                    enabled = !isSyncing
+                ) {
+                    if (isSyncing) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(18.dp),
+                            strokeWidth = 2.dp,
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                    } else {
+                        Icon(Icons.Default.Sync, contentDescription = null, modifier = Modifier.size(18.dp))
+                    }
+                    Spacer(Modifier.width(8.dp))
+                    Text(if (isSyncing) "Sincronizando..." else "Sincronizar obras")
+                }
             }
 
-            if (uiState.galleryImages.isEmpty()) {
+            if (galleryImages.isEmpty()) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -232,7 +289,7 @@ private fun ProfileContent(
                     horizontalArrangement = Arrangement.spacedBy(1.dp),
                     verticalArrangement = Arrangement.spacedBy(1.dp)
                 ) {
-                    items(uiState.galleryImages, key = { it.id }) { image ->
+                    items(galleryImages, key = { it.id }) { image ->
                         AsyncImage(
                             model = ImageRequest.Builder(LocalContext.current)
                                 .data(image.imageUrl)
@@ -272,6 +329,7 @@ private fun ProfileScreenPreview() {
             uiState = ProfileUiState.Success(user = user, galleryImages = gallery),
             onUploadGalleryImage = {},
             onUploadAvatar = {},
+            onClearUploadError = {},
             onSignOut = {},
             onNavigateToImageViewer = {}
         )
@@ -326,6 +384,7 @@ private fun ProfileScreenWithNavPreview() {
                 uiState = ProfileUiState.Success(user = user, galleryImages = emptyList()),
                 onUploadGalleryImage = {},
                 onUploadAvatar = {},
+                onClearUploadError = {},
                 onSignOut = {},
                 onNavigateToImageViewer = {},
                 modifier = Modifier.padding(innerPadding)

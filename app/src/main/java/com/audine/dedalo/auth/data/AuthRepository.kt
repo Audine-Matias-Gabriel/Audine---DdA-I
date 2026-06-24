@@ -4,14 +4,19 @@ import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 class AuthRepository(
     private val auth: FirebaseAuth,
-    private val userDao: UserDao
+    private val userDao: UserDao,
+    private val firestore: FirebaseFirestore,
+    private val scope: CoroutineScope
 ) {
 
     sealed class AuthState {
@@ -24,10 +29,12 @@ class AuthRepository(
     private val authStateFlow: Flow<AuthState> = callbackFlow {
         val listener = FirebaseAuth.AuthStateListener { firebaseAuth ->
             val firebaseUser = firebaseAuth.currentUser
-            trySend(
-                if (firebaseUser != null) AuthState.Authenticated(firebaseUser.toEntity())
-                else AuthState.Unauthenticated
-            )
+            if (firebaseUser != null) {
+                launch { persistUser(firebaseUser) }
+                trySend(AuthState.Authenticated(firebaseUser.toEntity()))
+            } else {
+                trySend(AuthState.Unauthenticated)
+            }
         }
         auth.addAuthStateListener(listener)
         awaitClose { auth.removeAuthStateListener(listener) }
@@ -55,6 +62,12 @@ class AuthRepository(
         Log.d("Auth", "persistUser completado")
     }
 
+    suspend fun updatePhotoUrl(userId: String, photoUrl: String) {
+        userDao.updatePhotoUrl(userId, photoUrl)
+        firestore.collection("users").document(userId)
+            .update("photoUrl", photoUrl).await()
+    }
+
     suspend fun clearUser() {
         userDao.clearCurrentUser()
     }
@@ -69,6 +82,9 @@ class AuthRepository(
         displayName = displayName,
         photoUrl = photoUrl?.toString()
     )
+
+    val currentUserId: String?
+        get() = auth.currentUser?.uid
 
     val isLoggedIn: Boolean
         get() = auth.currentUser != null

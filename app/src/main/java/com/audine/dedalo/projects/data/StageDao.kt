@@ -15,8 +15,14 @@ interface StageDao {
     @Query("SELECT * FROM stages WHERE obraId = :obraId ORDER BY posicion ASC")
     suspend fun getByObraId(obraId: String): List<StageEntity>
 
+    @Query("SELECT * FROM stages WHERE obraId IN (:obraIds)")
+    suspend fun getByObraIds(obraIds: List<String>): List<StageEntity>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertAll(stages: List<StageEntity>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsert(stage: StageEntity)
 
     @Query("DELETE FROM stages WHERE obraId = :obraId")
     suspend fun deleteByObraId(obraId: String)

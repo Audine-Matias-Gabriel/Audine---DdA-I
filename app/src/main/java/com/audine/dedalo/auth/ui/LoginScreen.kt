@@ -135,7 +135,7 @@ fun LoginScreen(
                                     listOf(AuthUI.IdpConfig.GoogleBuilder().build())
                                 )
                                 .setIsSmartLockEnabled(false)
-                                .setAlwaysShowSignInMethodScreen(true) // Add this line
+                                .setAlwaysShowSignInMethodScreen(false)
                                 .build()
                             signInLauncher.launch(intent)
                         },

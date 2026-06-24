@@ -16,7 +16,7 @@ import com.audine.dedalo.projects.data.StageEntity
 
 @Database(
     entities = [ProjectEntity::class, StageEntity::class, UserEntity::class, ChatMessageEntity::class, GalleryImageEntity::class],
-    version = 4,
+    version = 6,
     exportSchema = true
 )
 @TypeConverters(Converters::class)

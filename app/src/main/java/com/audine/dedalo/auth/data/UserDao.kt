@@ -18,6 +18,9 @@ interface UserDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(user: UserEntity)
 
+    @Query("UPDATE users SET photoUrl = :photoUrl WHERE id = :userId")
+    suspend fun updatePhotoUrl(userId: String, photoUrl: String)
+
     @Query("UPDATE users SET isCurrentUser = 0")
     suspend fun clearCurrentUser()
 

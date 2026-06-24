@@ -2,6 +2,7 @@ package com.audine.dedalo.projects.data
 
 data class Project(
     val id: String = "",
+    val userId: String = "",
     val nombre: String,
     val direccion: String,
     val latitud: Double = 0.0,

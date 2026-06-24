@@ -17,7 +17,6 @@ ksp = "2.0.21-1.0.28"
 room = "2.7.1"
 splashscreen = "1.0.1"
 firebaseBom = "34.13.0"
-maplibreGl = "13.1.0"
 coroutinesPlayServices = "1.9.0"
 firebaseUiAuth = "8.0.2"
 mockk = "1.13.12"
@@ -59,7 +58,6 @@ material-icons-extended = { group = "androidx.compose.material", name = "materia
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
 firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
 firebase-ai = { group = "com.google.firebase", name = "firebase-ai" }
-maplibre-gl = { group = "org.maplibre.gl", name = "android-sdk", version.ref = "maplibreGl" }
 kotlinx-coroutines-play-services = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-play-services", version.ref = "coroutinesPlayServices" }
 firebase-ui-auth = { group = "com.firebaseui", name = "firebase-ui-auth", version.ref = "firebaseUiAuth" }
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }

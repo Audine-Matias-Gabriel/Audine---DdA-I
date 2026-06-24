@@ -10,6 +10,7 @@ data class Stage(
     val estado: StageStatus = StageStatus.ESPERA,
     val fechaInicio: Long? = null,
     val fechaFin: Long? = null,
+    val images: List<ImageData> = emptyList(),
     val createdAt: Long = System.currentTimeMillis(),
     val updatedAt: Long = System.currentTimeMillis()
 )
