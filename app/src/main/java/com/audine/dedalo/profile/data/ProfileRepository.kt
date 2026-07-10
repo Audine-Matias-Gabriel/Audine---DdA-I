@@ -1,24 +1,23 @@
 package com.audine.dedalo.profile.data
 
+import android.net.Uri
+import com.audine.dedalo.core.data.remote.SupabaseStorageHelper
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.tasks.await
 import java.util.UUID
 
 class ProfileRepository(
     private val galleryDao: GalleryDao,
     private val firestore: FirebaseFirestore,
-    private val storage: FirebaseStorage
+    private val supabaseStorageHelper: SupabaseStorageHelper
 ) {
     fun observeGallery(userId: String): Flow<List<GalleryImageEntity>> =
         galleryDao.observeAll(userId)
 
-    suspend fun uploadGalleryImage(userId: String, imageBytes: ByteArray): String {
+    suspend fun uploadGalleryImage(userId: String, uri: Uri): String {
         val imageId = UUID.randomUUID().toString()
-        val ref = storage.reference.child("users/$userId/gallery/$imageId.jpg")
-        ref.putBytes(imageBytes).await()
-        val downloadUrl = ref.downloadUrl.await().toString()
+        val path = "users/$userId/gallery/$imageId.jpg"
+        val downloadUrl = supabaseStorageHelper.uploadImage(uri, path)
 
         val entity = GalleryImageEntity(
             id = imageId,
@@ -30,19 +29,12 @@ class ProfileRepository(
         firestore.collection("users").document(userId)
             .collection("gallery").document(imageId)
             .set(mapOf("imageUrl" to downloadUrl, "createdAt" to entity.createdAt))
-            .await()
 
         return downloadUrl
     }
 
-    suspend fun uploadAvatar(userId: String, imageBytes: ByteArray): String {
-        val ref = storage.reference.child("users/$userId/avatar.jpg")
-        ref.putBytes(imageBytes).await()
-        return ref.downloadUrl.await().toString()
-    }
-
-    suspend fun updateAvatarUrl(userId: String, downloadUrl: String) {
-        firestore.collection("users").document(userId)
-            .update("photoUrl", downloadUrl).await()
+    suspend fun uploadAvatar(userId: String, uri: Uri): String {
+        val path = "users/$userId/avatar.jpg"
+        return supabaseStorageHelper.uploadImage(uri, path)
     }
 }

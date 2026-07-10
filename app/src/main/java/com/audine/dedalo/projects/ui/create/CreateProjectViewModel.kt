@@ -9,11 +9,11 @@ import com.audine.dedalo.auth.data.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import com.audine.dedalo.core.data.remote.LocationiqResponse
 import com.audine.dedalo.core.data.remote.LocationiqService
+import com.audine.dedalo.core.data.remote.SupabaseStorageHelper
 import com.audine.dedalo.projects.data.ImageData
 import com.audine.dedalo.projects.data.ImageType
 import com.audine.dedalo.projects.data.Project
 import com.audine.dedalo.projects.data.ProjectRepository
-import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,9 +23,6 @@ import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
 import java.util.UUID
 import javax.inject.Inject
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
 
 data class SelectedImage(
     val uri: Uri,
@@ -36,7 +33,7 @@ data class SelectedImage(
 class CreateProjectViewModel @Inject constructor(
     private val repository: ProjectRepository,
     private val locationiqService: LocationiqService,
-    private val storage: FirebaseStorage,
+    private val supabaseStorageHelper: SupabaseStorageHelper,
     private val authRepository: AuthRepository
 ) : ViewModel() {
 
@@ -150,21 +147,10 @@ class CreateProjectViewModel @Inject constructor(
         if (_selectedImages.value.isEmpty()) return emptyList()
         val images = mutableListOf<ImageData>()
         for (selected in _selectedImages.value) {
-            val ref = storage.reference.child("projects/${UUID.randomUUID()}.jpg")
-            ref.putFile(selected.uri).await()
-            val downloadUrl = ref.downloadUrl.await()
-            images.add(ImageData(url = downloadUrl.toString(), type = selected.type))
+            val path = "projects/${UUID.randomUUID()}.jpg"
+            val downloadUrl = supabaseStorageHelper.uploadImage(selected.uri, path)
+            images.add(ImageData(url = downloadUrl, type = selected.type))
         }
         return images
     }
-
-    private suspend fun <T> com.google.android.gms.tasks.Task<T>.await(): T =
-        suspendCoroutine { continuation ->
-            addOnSuccessListener { result ->
-                continuation.resume(result)
-            }
-            addOnFailureListener { exception ->
-                continuation.resumeWithException(exception)
-            }
-        }
 }

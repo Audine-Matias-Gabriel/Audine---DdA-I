@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
     id("com.google.gms.google-services")
@@ -33,6 +34,8 @@ android {
         buildConfigField("String", "LOCATIONIQ_API_KEY", "\"${secrets["LOCATIONIQ_API_KEY"] ?: ""}\"")
         buildConfigField("String", "GEMINI_API_KEY", "\"${secrets["GEMINI_API_KEY"] ?: ""}\"")
         buildConfigField("String", "WEB_ID", "\"${secrets["WEB_ID"] ?: ""}\"")
+        buildConfigField("String", "SUPABASE_URL", "\"${secrets["SUPABASE-URL"] ?: ""}\"")
+        buildConfigField("String", "SUPABASE_ANON_KEY", "\"${secrets["SUPABASE-PUBLISHABLE-KEY"] ?: ""}\"")
     }
 
     buildTypes {
@@ -83,9 +86,12 @@ dependencies {
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)
-    implementation(libs.firebase.storage)
     implementation(libs.firebase.ai)
     implementation(libs.kotlinx.coroutines.play.services)
+    implementation(platform(libs.supabase.bom))
+    implementation(libs.supabase.storage)
+    implementation(libs.ktor.client.android)
+    implementation(libs.kotlinx.serialization.json)
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)

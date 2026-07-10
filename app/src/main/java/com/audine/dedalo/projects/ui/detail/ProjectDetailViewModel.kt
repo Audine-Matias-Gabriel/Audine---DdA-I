@@ -5,13 +5,13 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.audine.dedalo.auth.data.AuthRepository
+import com.audine.dedalo.core.data.remote.SupabaseStorageHelper
 import com.audine.dedalo.projects.data.ImageData
 import com.audine.dedalo.projects.data.ImageType
 import com.audine.dedalo.projects.data.Project
 import com.audine.dedalo.projects.data.ProjectRepository
 import com.audine.dedalo.projects.data.Stage
 import com.audine.dedalo.projects.data.StageStatus
-import com.google.firebase.storage.FirebaseStorage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,9 +22,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.util.UUID
 import javax.inject.Inject
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
 
 sealed interface ProjectDetailUiState {
     data object Loading : ProjectDetailUiState
@@ -40,7 +37,7 @@ sealed interface ImageDestination {
 @HiltViewModel
 class ProjectDetailViewModel @Inject constructor(
     private val repository: ProjectRepository,
-    private val storage: FirebaseStorage,
+    private val supabaseStorageHelper: SupabaseStorageHelper,
     private val authRepository: AuthRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
@@ -148,14 +145,7 @@ class ProjectDetailViewModel @Inject constructor(
     }
 
     private suspend fun uploadImage(uri: Uri): String {
-        val ref = storage.reference.child("projects/${obraId}/${UUID.randomUUID()}.jpg")
-        ref.putFile(uri).await()
-        return ref.downloadUrl.await().toString()
+        val path = "projects/$obraId/${UUID.randomUUID()}.jpg"
+        return supabaseStorageHelper.uploadImage(uri, path)
     }
-
-    private suspend fun <T> com.google.android.gms.tasks.Task<T>.await(): T =
-        suspendCoroutine { continuation ->
-            addOnSuccessListener { result -> continuation.resume(result) }
-            addOnFailureListener { exception -> continuation.resumeWithException(exception) }
-        }
 }

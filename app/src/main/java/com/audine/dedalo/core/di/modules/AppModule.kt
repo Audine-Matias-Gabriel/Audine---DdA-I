@@ -8,6 +8,7 @@ import com.audine.dedalo.chat.data.ChatRepositoryImpl
 import com.audine.dedalo.chat.data.GeminiApiService
 import com.audine.dedalo.core.data.local.TestData
 import com.audine.dedalo.core.di.qualifier.ApplicationScope
+import com.audine.dedalo.core.data.remote.SupabaseStorageHelper
 import com.audine.dedalo.profile.data.GalleryDao
 import com.audine.dedalo.profile.data.ProfileRepository
 import com.audine.dedalo.projects.data.FirebaseSyncManager
@@ -16,7 +17,6 @@ import com.audine.dedalo.projects.data.ProjectRepository
 import com.audine.dedalo.projects.data.StageDao
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -74,8 +74,8 @@ object AppModule {
     fun provideProfileRepository(
         galleryDao: GalleryDao,
         firestore: FirebaseFirestore,
-        storage: FirebaseStorage
-    ): ProfileRepository = ProfileRepository(galleryDao, firestore, storage)
+        supabaseStorageHelper: SupabaseStorageHelper
+    ): ProfileRepository = ProfileRepository(galleryDao, firestore, supabaseStorageHelper)
 
     @Provides @Singleton
     fun initTestData(
