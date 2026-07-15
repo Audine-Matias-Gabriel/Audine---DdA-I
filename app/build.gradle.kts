@@ -88,7 +88,6 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.ai)
     implementation(libs.kotlinx.coroutines.play.services)
-    implementation(platform(libs.supabase.bom))
     implementation(libs.supabase.storage)
     implementation(libs.ktor.client.android)
     implementation(libs.kotlinx.serialization.json)
